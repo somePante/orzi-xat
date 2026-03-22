@@ -1298,16 +1298,17 @@ async function loadProfile(userId,tab='posts'){
   const vbadge=p.verified?`<span class="profile-verified">✓</span>`:'';
   const isAdminUser=ADMIN_IDS.includes(p.id)||p.username===ADMIN_USER;
 
-  const isOwnProfile = isOwn;
-  const dragBannerAttrs = isOwnProfile ? `ondragover="event.preventDefault();this.style.outline='2px dashed var(--accent)'" ondragleave="this.style.outline=''" ondrop="handleProfileImgDrop(event,'banner')"` : '';
-  const dragAvatarAttrs = isOwnProfile ? `ondragover="event.preventDefault();this.style.outline='2px dashed var(--accent2)'" ondragleave="this.style.outline=''" ondrop="handleProfileImgDrop(event,'avatar')"` : '';
-  const dragHint = isOwnProfile ? `<div style="font-family:var(--fmono);font-size:9px;color:var(--muted);letter-spacing:.1em;text-align:center;margin-top:3px;opacity:.6">drag here to change</div>` : '';
 
   c.innerHTML=`
     ${p.banner_url
-      ?`<img src="${esc(p.banner_url)}" class="profile-banner" ${dragBannerAttrs} title="${isOwnProfile?'drag an image here to set your banner':''}">`
-      :`<div class="profile-banner-empty" ${dragBannerAttrs} title="${isOwnProfile?'arrastra una imagen para cambiar el banner':''}"></div>`}
-    <div class="profile-avatar-wrap" ${dragAvatarAttrs} title="${isOwnProfile?'drag an image here to set your avatar':''}">${av}${dragHint}</div>
+      ?`<img src="${esc(p.banner_url)}" class="profile-banner" ${isOwn?'ondragover="event.preventDefault()" ondrop="handleProfileImgDrop(event,\'banner\')"':''}>`
+      :`<div class="profile-banner-empty" ${isOwn?'ondragover="event.preventDefault()" ondrop="handleProfileImgDrop(event,\'banner\')"':''}></div>`}
+    <div class="profile-avatar-wrap">
+      <div style="position:relative;display:inline-block">
+        ${av}
+        ${isOwn?`<label for="av-file" style="position:absolute;inset:0;border-radius:50%;background:rgba(0,0,0,0);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;opacity:0;transition:opacity .2s" onmouseover="this.style.opacity='1';this.style.background='rgba(0,0,0,.5)'" onmouseout="this.style.opacity='0';this.style.background='rgba(0,0,0,0)'" ondragover="event.preventDefault()" ondrop="handleProfileImgDrop(event,'avatar')">📷</label><input type='file' id='av-file' accept='image/*' style='display:none' onchange='handleProfileFileSelect(this)'>`:''}
+      </div>
+    </div>
     <div class="profile-info" style="padding:10px 0 0">
       <div><span class="profile-dname">${esc(p.display_name)}</span>${vbadge}${isAdminUser?`<span class="admin-badge badge-admin" style="margin-left:6px;vertical-align:middle">ADMIN</span>`:''}</div>
       <div class="profile-handle">@${esc(p.username)}</div>
@@ -1356,6 +1357,12 @@ async function loadFollowList(userId,type){
 }
 
 // ── DRAG TO PROFILE ──────────────────────────────────────────
+async function handleProfileFileSelect(input) {
+  const file = input.files[0]; if (!file) return;
+  await handleProfileImgDrop({ dataTransfer: { files: [file] }, preventDefault: ()=>{} }, 'avatar');
+  input.value = '';
+}
+
 async function handleProfileImgDrop(event, type) {
   event.preventDefault();
   event.target.style.outline = '';
