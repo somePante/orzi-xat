@@ -624,18 +624,27 @@ window.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('offline', ()=>document.getElementById('offline-bar').style.display='block');
   if (!navigator.onLine) document.getElementById('offline-bar').style.display='block';
 
-  try { sb = supabase.createClient(SB_URL, SB_KEY); document.getElementById('sp-status').textContent='server ready ✓'; }
-  catch(e) { document.getElementById('sp-status').textContent='connection error'; }
+  // Debug helper - shows status visibly on screen
+  function dbg(msg) {
+    console.log('[ORZI]', msg);
+    const el = document.getElementById('sp-status');
+    if (el) el.textContent = msg;
+  }
+
+  try { sb = supabase.createClient(SB_URL, SB_KEY); dbg('supabase ok ✓'); }
+  catch(e) { dbg('supabase FAIL: '+e.message); }
 
   const saved = localStorage.getItem('ox_user');
-  if (saved) setTimeout(()=>document.getElementById('sp-status').textContent='restoring your session...', 1200);
+  dbg(saved ? 'session found...' : 'no session');
 
   setTimeout(()=>{
     document.getElementById('splash').classList.add('out');
     setTimeout(async ()=>{
       document.getElementById('splash').style.display='none';
+      dbg('splash done, booting...');
       try {
         if (saved) {
+          dbg('restoring session...');
           const parsed = JSON.parse(saved);
           let profile = parsed;
           try {
@@ -646,8 +655,10 @@ window.addEventListener('DOMContentLoaded', () => {
           currentUser = profile;
           localStorage.setItem('ox_user', JSON.stringify(profile));
           if (!profile.password_hash || profile.password_hash === '' || profile.password_hash === 'bot_no_login') {
+            dbg('no password - set password screen');
             showSetPassword();
           } else {
+            dbg('booting app...');
             bootApp();
           }
         } else {
@@ -664,6 +675,7 @@ window.addEventListener('DOMContentLoaded', () => {
 // ── AUTH TABS ─────────────────────────────────────────────────
 
 function showAuth() {
+  console.log('[ORZI] showAuth called');
   clearTimeout(window._failsafe);
   const screen = document.getElementById('auth-screen');
   screen.classList.remove('hidden');
