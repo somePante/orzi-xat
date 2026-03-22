@@ -655,8 +655,9 @@ window.addEventListener('DOMContentLoaded', () => {
           currentUser = profile;
           localStorage.setItem('ox_user', JSON.stringify(profile));
           if (!profile.password_hash || profile.password_hash === '' || profile.password_hash === 'bot_no_login') {
-            dbg('no password - set password screen');
-            showSetPassword();
+            dbg('no password - redirecting to login');
+            localStorage.removeItem('ox_user');
+            showAuth();
           } else {
             dbg('booting app...');
             bootApp();
