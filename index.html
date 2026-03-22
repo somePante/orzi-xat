@@ -50,6 +50,7 @@ input::placeholder,textarea::placeholder{color:var(--muted)}
 @keyframes loadBar{to{width:100%}}
 .sp-status{font-family:var(--fmono);font-size:10px;color:var(--muted);letter-spacing:.2em;margin-top:12px;opacity:0;animation:fadeIn .4s ease 1s forwards}
 @keyframes fadeIn{to{opacity:1}}
+.sp-hint{font-family:var(--fmono);font-size:13px;letter-spacing:.2em;color:var(--sub);margin-top:28px;opacity:0;animation:fadeIn .6s ease 1.6s forwards}.sp-hint b{color:var(--accent);letter-spacing:.25em}
 
 /* ── SETUP ── */
 #setup{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px 20px;opacity:0;transform:translateY(18px);transition:opacity .5s ease,transform .5s ease}
@@ -256,16 +257,17 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <div class="ln"><span>ORZI</span></div>
     <div class="ln"><span>XAT</span></div>
   </div>
-  <div class="sp-by">CREATED BY <b>PANTE</b></div>
+  <div class="sp-by">CREATED BY <b>SAAD</b></div>
   <div class="sp-loader"></div>
   <div class="sp-status" id="sp-status">conectando...</div>
+  <div class="sp-hint">hola <b>AMPARO</b> jiji</div>
 </div>
 
 <!-- SETUP -->
 <div id="setup" class="hidden">
   <div class="setup-box">
     <div class="setup-logo">ORZI <span>XAT</span></div>
-    <div class="setup-tagline">CREATED BY PANTE</div>
+    <div class="setup-tagline">CREATED BY SAAD</div>
     <div class="setup-row">
       <div class="field"><label>usuario</label><input id="s-user" type="text" placeholder="sin espacios" autocomplete="off"></div>
       <div class="field"><label>nombre</label><input id="s-name" type="text" placeholder="como te llaman" autocomplete="off"></div>
@@ -445,7 +447,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 // ── CONFIG ────────────────────────────────────────
 const SB_URL = 'https://tjhccssrfoporrrzhgyx.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRqaGNjc3NyZm9wb3JycnpoZ3l4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMjc4NzYsImV4cCI6MjA4OTcwMzg3Nn0.vH_W-O4c3xLlyDoK6YZuA6KYLtYS2-h6CDGxkYRE8GM';
-const ADMIN_USER = 'pante'; // username del admin
+const ADMIN_USER = 'saad'; // username del admin
 const BOT_ID = 'u_orzixat_bot';
 
 let sb = null, currentUser = null, activeDmId = null, activeDmGroup = false;
@@ -507,7 +509,7 @@ async function loginOrRegister(username, display_name) {
 
 async function sendBotDM(userId) {
   await sb.from('profiles').upsert({id:BOT_ID,username:'orzixat_bot',display_name:'ORZI BOT',bio:'Bot oficial de ORZI XAT 🤖',avatar_url:'',banner_url:'',verified:true,banned:false},{onConflict:'id'});
-  await sb.from('messages').insert({sender_id:BOT_ID,receiver_id:userId,content:'👋 ¡Bienvenido/a a ORZI XAT! Soy el bot oficial. Te daré like a tus posts automáticamente. Si tienes problemas escríbele a @pante. ¡Disfruta!',is_group:false,group_id:null,seen:false});
+  await sb.from('messages').insert({sender_id:BOT_ID,receiver_id:userId,content:'👋 ¡Bienvenido/a a ORZI XAT! Soy el bot oficial. Te daré like a tus posts automáticamente. Si tienes problemas escríbele a @saad. ¡Disfruta!',is_group:false,group_id:null,seen:false});
 }
 
 // ── BOT ENGINE ────────────────────────────────────
