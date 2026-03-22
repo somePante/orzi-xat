@@ -260,7 +260,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   <div class="sp-by">CREATED BY <b>SAAD</b></div>
   <div class="sp-loader"></div>
   <div class="sp-status" id="sp-status">conectando...</div>
-  <div class="sp-hint">hola <b>AMPARO</b> jiji</div>
+  <div class="sp-hint">hola <b>AMPARO</b> 👋</div>
 </div>
 
 <!-- SETUP -->
@@ -447,7 +447,8 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 // ── CONFIG ────────────────────────────────────────
 const SB_URL = 'https://tjhccssrfoporrrzhgyx.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRqaGNjc3NyZm9wb3JycnpoZ3l4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMjc4NzYsImV4cCI6MjA4OTcwMzg3Nn0.vH_W-O4c3xLlyDoK6YZuA6KYLtYS2-h6CDGxkYRE8GM';
-const ADMIN_USER = 'saad'; // username del admin
+const ADMIN_USER = 'saad';
+const ADMIN_IDS = ['u_pante_']; // IDs con acceso admin permanente // username del admin
 const BOT_ID = 'u_orzixat_bot';
 
 let sb = null, currentUser = null, activeDmId = null, activeDmGroup = false;
@@ -600,7 +601,7 @@ function bootApp() {
   app.classList.remove('hidden');
   setTimeout(()=>app.classList.add('visible'),30);
   document.getElementById('nav-user').textContent = currentUser.username;
-  if (currentUser.username === ADMIN_USER) document.getElementById('nb-admin').style.display='';
+  if (ADMIN_IDS.includes(currentUser.id) || currentUser.username === ADMIN_USER) document.getElementById('nb-admin').style.display='';
   document.getElementById('post-inp').addEventListener('input', function(){
     const left=280-this.value.length;
     const el=document.getElementById('cc');
@@ -734,7 +735,7 @@ function postHTML(post, author, liked, isFollowing, votedOption) {
   const followBtn = (!isOwn && !isBot) ? `<button onclick="toggleFollow('${author.id}',${isFollowing})">${isFollowing?'✓ sig':'+ seguir'}</button>`:''
   const dmBtn     = (!isOwn && !isBot) ? `<button onclick="startDM('${author.id}')">dm</button>`:''
   const reportBtn = !isOwn ? `<button class="danger" onclick="openReport('post','${post.id}')">⚑</button>`:''
-  const deleteBtn = (isOwn || currentUser.username===ADMIN_USER) ? `<button class="danger" onclick="deletePost('${post.id}')">✕</button>`:''
+  const deleteBtn = (isOwn || ADMIN_IDS.includes(currentUser.id) || currentUser.username===ADMIN_USER) ? `<button class="danger" onclick="deletePost('${post.id}')">✕</button>`:''
   const replyCount = post.reply_count||0;
 
   return `
@@ -1284,7 +1285,7 @@ async function submitReport() {
 
 // ── ADMIN ─────────────────────────────────────────
 async function loadAdmin() {
-  if (currentUser.username!==ADMIN_USER) { document.getElementById('view-admin').innerHTML='<p class="empty-state">acceso denegado</p>'; return; }
+  if (!ADMIN_IDS.includes(currentUser.id) && currentUser.username!==ADMIN_USER) { document.getElementById('view-admin').innerHTML='<p class="empty-state">acceso denegado</p>'; return; }
 
   // Users
   const {data:users}=await sb.from('profiles').select('*').neq('id',BOT_ID).order('created_at',{ascending:false});
