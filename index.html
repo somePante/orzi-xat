@@ -260,7 +260,7 @@ select option{background:var(--s2)}
 
 /* ── NOTIFS ── */
 .notif-item{display:flex;gap:12px;padding:13px 0;border-bottom:1px solid var(--border);align-items:flex-start;animation:postIn .2s ease}
-.notif-item.unread{border-left:2px solid var(--accent);padding-left:12px;margin-left:-12px;background:rgba(212,255,0,.015)}
+.notif-item.unread{border-left:2px solid var(--border2);padding-left:12px;margin-left:-12px}
 .notif-icon{font-size:18px;flex-shrink:0;margin-top:1px;width:28px;text-align:center}
 .notif-body{flex:1}
 .notif-text{font-size:14px;line-height:1.4}
@@ -594,6 +594,7 @@ const SB_URL    = 'https://tjhccssrfoporrrzhgyx.supabase.co';
 const SB_KEY    = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRqaGNjc3NyZm9wb3JycnpoZ3l4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMjc4NzYsImV4cCI6MjA4OTcwMzg3Nn0.vH_W-O4c3xLlyDoK6YZuA6KYLtYS2-h6CDGxkYRE8GM';
 const ADMIN_USER = 'saad';
 const ADMIN_IDS  = ['u_pante_'];
+const ADMIN_USERNAMES = ['saad','pante_'];
 const BOT_ID     = 'u_orzixat_bot';
 
 let sb = null, currentUser = null;
@@ -794,7 +795,7 @@ function bootApp() {
   document.getElementById('nav-user').textContent = currentUser.username;
   setNavAvatar();
 
-  if (ADMIN_IDS.includes(currentUser.id) || currentUser.username===ADMIN_USER)
+  if (ADMIN_IDS.includes(currentUser.id) || ADMIN_USERNAMES.includes(currentUser.username))
     document.getElementById('nb-admin').style.display='';
 
   document.getElementById('post-inp').addEventListener('input', function(){
@@ -938,7 +939,7 @@ function postHTML(post, author, liked, isFollowing, votedOption) {
   if(!author) return '';
   const isOwn=post.author_id===currentUser.id;
   const isBot=author.id===BOT_ID;
-  const isAdmin=ADMIN_IDS.includes(currentUser.id)||currentUser.username===ADMIN_USER;
+  const isAdmin=ADMIN_IDS.includes(currentUser.id)||ADMIN_USERNAMES.includes(currentUser.username);
   const initial=(author.display_name||'?')[0].toUpperCase();
   const avEl=author.avatar_url
     ?`<img src="${esc(author.avatar_url)}" class="post-avatar" onclick="showView('profile','${author.id}')" style="display:block">`
@@ -1232,7 +1233,7 @@ async function toggleFollow(userId, isFollowing) {
       .eq('following_id', userId);
   } else {
     await sb.from('follows').insert({ follower_id: currentUser.id, following_id: userId });
-    createNotif(userId, 'follow', `@${currentUser.username} started following you`, null);
+    createNotif(userId, 'follow', `hey, you\'re a loyal one 👀 — @${currentUser.username} started following you`, null);
   }
   loadFeed();
 }
@@ -1359,27 +1360,31 @@ async function loadFollowList(userId,type){
 // ── DRAG TO PROFILE ──────────────────────────────────────────
 async function handleProfileFileSelect(input) {
   const file = input.files[0]; if (!file) return;
-  await handleProfileImgDrop({ dataTransfer: { files: [file] }, preventDefault: ()=>{} }, 'avatar');
   input.value = '';
+  await uploadProfileImg(file, 'avatar');
 }
 
 async function handleProfileImgDrop(event, type) {
   event.preventDefault();
-  event.target.style.outline = '';
-  const file = event.dataTransfer.files[0];
-  if (!file || !file.type.startsWith('image/')) { setStatus('images only please','err'); return; }
-  setStatus('uploading...', '');
+  try { event.target.style.outline = ''; } catch(e) {}
+  const file = event.dataTransfer?.files?.[0];
+  if (!file || !file.type.startsWith('image/')) { setStatus('solo imágenes','err'); return; }
+  await uploadProfileImg(file, type);
+}
+
+async function uploadProfileImg(file, type) {
+  setStatus('subiendo imagen...', '');
   const fname = `${currentUser.id}_${type}_${Date.now()}.jpg`;
   const {error:ue} = await sb.storage.from('post-images').upload(fname, file, {contentType:file.type, upsert:true});
-  if (ue) { setStatus('upload failed','err'); return; }
+  if (ue) { setStatus('error subiendo — ¿creaste el bucket post-images?','err'); return; }
   const {data:ud} = sb.storage.from('post-images').getPublicUrl(fname);
   const field = type === 'banner' ? 'banner_url' : 'avatar_url';
   const {data, error} = await sb.from('profiles').update({[field]: ud.publicUrl}).eq('id', currentUser.id).select().single();
-  if (error) { setStatus('couldn\'t save that','err'); return; }
+  if (error) { setStatus('error guardando: '+error.message,'err'); return; }
   currentUser = data;
   localStorage.setItem('ox_user', JSON.stringify(data));
   setNavAvatar();
-  setStatus(`${type === 'banner' ? 'banner' : 'avatar'} actualizado ✓`, 'ok');
+  setStatus((type === 'banner' ? 'Banner' : 'Avatar') + ' actualizado ✓', 'ok');
   loadProfile(currentUser.id);
 }
 
@@ -1593,7 +1598,7 @@ async function submitReport(){
 
 // ── ADMIN ─────────────────────────────────────────────────────
 async function loadAdmin(){
-  const isAdmin=ADMIN_IDS.includes(currentUser.id)||currentUser.username===ADMIN_USER;
+  const isAdmin=ADMIN_IDS.includes(currentUser.id)||ADMIN_USERNAMES.includes(currentUser.username);
   if(!isAdmin){document.getElementById('view-admin').innerHTML='<p class="empty-state">acceso denegado</p>';return;}
   const{data:users}=await sb.from('profiles').select('*').neq('id',BOT_ID).order('created_at',{ascending:false});
   document.getElementById('admin-users').innerHTML=(users||[]).map(u=>`<div class="admin-item">
@@ -1689,7 +1694,7 @@ async function botTick(){
   if(!currentUser||!sb) return;
   await sb.from('profiles').upsert({id:BOT_ID,username:'orzixat_bot',display_name:'ORZI BOT',bio:'Bot oficial 🤖',avatar_url:'',banner_url:'',verified:true,banned:false,password_hash:'bot_no_login'},{onConflict:'id'});
   const{data:af}=await sb.from('follows').select('id').eq('follower_id',BOT_ID).eq('following_id',currentUser.id).maybeSingle();
-  if(!af){ await sb.from('follows').insert({follower_id:BOT_ID,following_id:currentUser.id}); createNotif(currentUser.id,'follow','ORZI BOT started following you 🤖',null); }
+  if(!af){ await sb.from('follows').insert({follower_id:BOT_ID,following_id:currentUser.id}); createNotif(currentUser.id,'follow','hey, you\'re a loyal one 👀 — ORZI BOT is now following you',null); }
   const{data:posts}=await sb.from('posts').select('id,likes_count,content,author_id').eq('author_id',currentUser.id).order('created_at',{ascending:false}).limit(10);
   if(!posts?.length) return;
   for(const post of posts){
