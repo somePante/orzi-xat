@@ -47,7 +47,7 @@ select option{background:var(--s2)}
 
 /* ── SPLASH ── */
 #splash{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:0}
-#splash::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 40% at 50% 50%,rgba(212,255,0,.04) 0%,transparent 70%);pointer-events:none}
+/* no splash glow */
 #splash.out{animation:splashFade .75s cubic-bezier(.77,0,.18,1) forwards;pointer-events:none}
 @keyframes splashFade{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.05)}}
 .sp-title{font-family:var(--ftitle);font-size:clamp(86px,22vw,200px);letter-spacing:.05em;line-height:.84;text-align:center;position:relative;z-index:1}
@@ -62,14 +62,15 @@ select option{background:var(--s2)}
 .sp-loader::after{content:'';display:block;height:100%;width:0%;background:var(--accent);animation:loadBar 1.5s cubic-bezier(.4,0,.2,1) 1.1s forwards}
 @keyframes loadBar{to{width:100%}}
 .sp-status{font-family:var(--fmono);font-size:9px;color:var(--muted);letter-spacing:.25em;margin-top:10px;opacity:0;animation:fadeUp .4s ease 1.1s forwards}
-.sp-hint{font-family:var(--fmono);font-size:12px;letter-spacing:.18em;color:var(--sub);margin-top:32px;opacity:0;animation:fadeUp .6s ease 1.7s forwards}
-.sp-hint b{color:var(--accent);letter-spacing:.22em}
+
+
 @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeIn{to{opacity:1}}
 
 /* ── AUTH SCREEN ── */
 #auth-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px 20px;opacity:0;transform:translateY(16px);transition:opacity .5s ease,transform .5s ease;background:var(--bg)}
 #auth-screen.visible{opacity:1;transform:translateY(0)}
+#set-pass-screen.visible{opacity:1!important;transform:translateY(0)!important}
 .auth-box{width:100%;max-width:420px;background:var(--s1);border:1px solid var(--border);border-radius:var(--r2);padding:36px 32px;box-shadow:var(--shadow)}
 .auth-logo{font-family:var(--ftitle);font-size:54px;letter-spacing:.05em;line-height:1;margin-bottom:2px}
 .auth-logo span{color:var(--accent)}
@@ -335,7 +336,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 </head>
 <body>
 
-<div id="offline-bar">SIN CONEXIÓN — MODO OFFLINE</div>
+<div id="offline-bar">YOU'RE OFFLINE — some things won't load</div>
 
 <!-- LIGHTBOX -->
 <div id="lightbox" class="hidden" onclick="closeLightbox()">
@@ -351,7 +352,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   </div>
   <div class="sp-by">CREATED BY <b>SAAD</b></div>
   <div class="sp-loader"></div>
-  <div class="sp-status" id="sp-status">conectando...</div>
+  <div class="sp-status" id="sp-status">connecting...</div>
 </div>
 
 <!-- AUTH -->
@@ -361,35 +362,35 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <div class="auth-tagline">CREATED BY SAAD</div>
 
     <div class="auth-tabs">
-      <button class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">ENTRAR</button>
-      <button class="auth-tab" id="tab-register" onclick="switchAuthTab('register')">REGISTRO</button>
+      <button class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">LOG IN</button>
+      <button class="auth-tab" id="tab-register" onclick="switchAuthTab('register')">SIGN UP</button>
     </div>
 
     <!-- LOGIN -->
     <div id="form-login">
-      <div class="field"><label>usuario</label><input id="l-user" type="text" placeholder="tu_usuario" autocomplete="username"></div>
-      <div class="field"><label>contraseña</label><input id="l-pass" type="password" placeholder="••••••••" autocomplete="current-password"></div>
-      <button class="primary auth-btn" onclick="doLogin()">ENTRAR →</button>
+      <div class="field"><label>username</label><input id="l-user" type="text" placeholder="your_username" autocomplete="username"></div>
+      <div class="field"><label>password</label><input id="l-pass" type="password" placeholder="••••••••" autocomplete="current-password"></div>
+      <button class="primary auth-btn" onclick="doLogin()">LOG IN →</button>
     </div>
 
     <!-- REGISTER -->
     <div id="form-register" class="hidden">
       <div class="field-row">
-        <div class="field"><label>usuario</label><input id="r-user" type="text" placeholder="sin espacios" autocomplete="username"></div>
-        <div class="field"><label>nombre</label><input id="r-name" type="text" placeholder="como te llaman"></div>
+        <div class="field"><label>username</label><input id="r-user" type="text" placeholder="no spaces" autocomplete="username"></div>
+        <div class="field"><label>display name</label><input id="r-name" type="text" placeholder="how people know you"></div>
       </div>
       <div class="field">
-        <label>contraseña</label>
-        <input id="r-pass" type="password" placeholder="mínimo 6 caracteres" autocomplete="new-password">
+        <label>password</label>
+        <input id="r-pass" type="password" placeholder="at least 6 characters" autocomplete="new-password">
         <div class="field-hint">guárdala bien, no hay recuperación por email</div>
       </div>
       <div class="field">
-        <label>confirmar contraseña</label>
-        <input id="r-pass2" type="password" placeholder="repite la contraseña" autocomplete="new-password">
+        <label>confirm password</label>
+        <input id="r-pass2" type="password" placeholder="type it again" autocomplete="new-password">
       </div>
-      <button class="primary auth-btn" onclick="doRegister()">CREAR CUENTA →</button>
+      <button class="primary auth-btn" onclick="doRegister()">CREATE ACCOUNT →</button>
       <div class="auth-divider">tu ID de usuario</div>
-      <div class="uid-display">se generará al registrarte — guárdalo por si necesitas soporte</div>
+      <div class="uid-display">generated when you sign up — save it in case you need support</div>
     </div>
 
     <div class="auth-err" id="auth-err"></div>
@@ -402,10 +403,10 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <div class="nav-logo">ORZI <span>XAT</span></div>
     <div class="nav-links">
       <button class="nav-btn" onclick="showView('feed')" id="nb-feed">feed</button>
-      <button class="nav-btn" onclick="showView('explore')" id="nb-explore">explorar</button>
+      <button class="nav-btn" onclick="showView('explore')" id="nb-explore">explore</button>
       <button class="nav-btn" onclick="showView('notifs')" id="nb-notifs">notifs<span id="notif-badge" class="nav-badge hidden"></span></button>
-      <button class="nav-btn" onclick="showView('dms')" id="nb-dms">mensajes<span id="dm-badge" class="nav-badge hidden"></span></button>
-      <button class="nav-btn" onclick="showView('profile',currentUser?.id)" id="nb-profile">perfil</button>
+      <button class="nav-btn" onclick="showView('dms')" id="nb-dms">messages<span id="dm-badge" class="nav-badge hidden"></span></button>
+      <button class="nav-btn" onclick="showView('profile',currentUser?.id)" id="nb-profile">profile</button>
       <button class="nav-btn" id="nb-admin" onclick="showView('admin')" style="display:none">⚡</button>
     </div>
     <div class="nav-right">
@@ -420,19 +421,19 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       <div class="compose-top">
         <div class="compose-av" id="compose-av"></div>
         <div class="compose-right">
-          <textarea id="post-inp" maxlength="280" placeholder="¿qué está pasando? usa #hashtags"></textarea>
+          <textarea id="post-inp" maxlength="280" placeholder="what's on your mind? use #hashtags"></textarea>
         </div>
       </div>
       <div id="poll-section" class="hidden">
         <div class="poll-inputs">
-          <input id="poll-a" type="text" placeholder="opción A" maxlength="60">
-          <input id="poll-b" type="text" placeholder="opción B" maxlength="60">
+          <input id="poll-a" type="text" placeholder="option A" maxlength="60">
+          <input id="poll-b" type="text" placeholder="option B" maxlength="60">
         </div>
       </div>
       <div class="img-attach-area" id="img-attach-area">
         <div class="img-drop-zone" id="img-drop-zone" onclick="document.getElementById('img-input').click()" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
-          <div class="img-drop-label">📎 arrastra imágenes aquí o <b>haz clic para seleccionar</b></div>
-          <div style="font-family:var(--fmono);font-size:9px;color:var(--muted);letter-spacing:.1em">PNG · JPG · GIF · WEBP — máx 4 imágenes</div>
+          <div class="img-drop-label">📎 drag images here or <b>click to pick</b></div>
+          <div style="font-family:var(--fmono);font-size:9px;color:var(--muted);letter-spacing:.1em">PNG · JPG · GIF · WEBP — up to 4 images</div>
         </div>
         <div class="img-thumbs" id="img-thumbs"></div>
       </div>
@@ -444,78 +445,78 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
           <button class="compose-tool" onclick="togglePoll()" id="poll-toggle" title="encuesta">📊</button>
           <span class="char-count" id="cc">280</span>
         </div>
-        <button class="primary" onclick="publishPost()" style="padding:8px 20px">publicar</button>
+        <button class="primary" onclick="publishPost()" style="padding:8px 20px">post</button>
       </div>
     </div>
     <div class="feed-tabs">
       <button class="tab-btn active" id="tab-global" onclick="switchFeedTab('global')">global</button>
-      <button class="tab-btn" id="tab-following" onclick="switchFeedTab('following')">siguiendo</button>
+      <button class="tab-btn" id="tab-following" onclick="switchFeedTab('following')">following</button>
       <button class="tab-btn" id="tab-hashtag" style="display:none">#<span id="active-hashtag"></span></button>
     </div>
-    <div id="feed-posts"><p class="empty-state">cargando...</p></div>
+    <div id="feed-posts"><p class="empty-state">loading...<//p></div>
   </div>
 
   <!-- EXPLORE -->
   <div id="view-explore" class="view hidden">
-    <div class="section-h">Explorar</div>
-    <div class="search-bar"><input id="search-inp" type="text" placeholder="🔍  buscar usuarios o posts..." oninput="runSearch(this.value)"></div>
+    <div class="section-h">Explore</div>
+    <div class="search-bar"><input id="search-inp" type="text" placeholder="🔍  search people or posts..." oninput="runSearch(this.value)"></div>
     <div id="search-results" class="hidden" style="margin-top:10px"></div>
-    <div id="explore-list"><p class="empty-state">cargando...</p></div>
+    <div id="explore-list"><p class="empty-state">loading...</p></div>
   </div>
 
   <!-- NOTIFS -->
   <div id="view-notifs" class="view hidden">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-      <div class="section-h" style="margin:0">Notificaciones</div>
-      <button onclick="markNotifsRead()" class="ghost" style="font-size:10px">marcar leídas</button>
+      <div class="section-h" style="margin:0">Notifications</div>
+      <button onclick="markNotifsRead()" class="ghost" style="font-size:10px">mark all read</button>
     </div>
-    <div id="notifs-list"><p class="empty-state">cargando...</p></div>
+    <div id="notifs-list"><p class="empty-state">loading...</p></div>
   </div>
 
   <!-- PROFILE -->
   <div id="view-profile" class="view hidden">
-    <div id="profile-content"><p class="empty-state">cargando...</p></div>
+    <div id="profile-content"><p class="empty-state">loading...</p></div>
   </div>
 
   <!-- DMs -->
   <div id="view-dms" class="view hidden">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-      <div class="section-h" style="margin:0">Mensajes</div>
-      <button onclick="openNewGroupModal()">+ grupo</button>
+      <div class="section-h" style="margin:0">Messages</div>
+      <button onclick="openNewGroupModal()">+ group</button>
     </div>
     <div class="dm-layout">
       <div class="dm-sidebar">
         <div class="dm-sidebar-head">Chats</div>
         <div class="dm-convs-scroll" id="dm-convs"></div>
       </div>
-      <div id="dm-chat-panel"><div class="dm-empty"><span style="font-size:28px">💬</span>selecciona un chat</div></div>
+      <div id="dm-chat-panel"><div class="dm-empty"><span style="font-size:28px">💬</span>pick a chat to start 👈</div></div>
     </div>
   </div>
 
   <!-- ADMIN -->
   <div id="view-admin" class="view hidden">
-    <div class="section-h" style="color:var(--warn)">⚡ Panel Admin</div>
-    <div class="admin-section"><h3>Usuarios</h3><div id="admin-users">cargando...</div></div>
-    <div class="admin-section"><h3>Reportes</h3><div id="admin-reports">cargando...</div></div>
-    <div class="admin-section"><h3>Posts recientes</h3><div id="admin-posts">cargando...</div></div>
+    <div class="section-h" style="color:var(--warn)">⚡ Admin Panel</div>
+    <div class="admin-section"><h3>Users</h3><div id="admin-users">loading...<//div></div>
+    <div class="admin-section"><h3>Reports</h3><div id="admin-reports">loading...<//div></div>
+    <div class="admin-section"><h3>Recent Posts</h3><div id="admin-posts">loading...<//div></div>
   </div>
 </div>
 
 <!-- EDIT PROFILE MODAL -->
 <div id="edit-modal" class="modal-overlay hidden">
   <div class="modal-box">
-    <div class="modal-title">Editar Perfil</div>
-    <div class="field"><label>nombre</label><input id="e-display" type="text"></div>
+    <div class="modal-title">Edit Profile</div>
+    <div class="field"><label>display name</label><input id="e-display" type="text"></div>
     <div class="field"><label>bio</label><textarea id="e-bio" rows="2"></textarea></div>
-    <div class="field"><label>url avatar</label><input id="e-avatar" type="text" placeholder="https://..."></div>
-    <div class="field"><label>url banner</label><input id="e-banner" type="text" placeholder="https://..."></div>
+    <div class="field"><label>avatar url</label><input id="e-avatar" type="text" placeholder="https://..."></div>
+    <div class="field"><label>banner url</label><input id="e-banner" type="text" placeholder="https://..."></div>
     <div class="field">
-      <label>cambiar contraseña (dejar vacío = no cambiar)</label>
-      <input id="e-pass" type="password" placeholder="nueva contraseña">
+      <label>change password (leave blank to keep current)</label>
+      <input id="e-pass" type="password" placeholder="new password">
     </div>
     <div class="modal-actions">
-      <button class="primary" onclick="saveProfile()">guardar</button>
-      <button onclick="closeEdit()">cancelar</button>
+      <button class="primary" onclick="saveProfile()">save</button>
+      <button onclick="closeEdit()">cancel</button>
     </div>
   </div>
 </div>
@@ -523,12 +524,12 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 <!-- REPOST MODAL -->
 <div id="repost-modal" class="modal-overlay hidden">
   <div class="modal-box">
-    <div class="modal-title">Repostear</div>
+    <div class="modal-title">Repost</div>
     <div id="repost-preview" style="margin-bottom:14px"></div>
-    <div class="field"><label>comentario (opcional)</label><textarea id="repost-comment" rows="2" placeholder="añade tu opinión..."></textarea></div>
+    <div class="field"><label>add a comment (optional)</label><textarea id="repost-comment" rows="2" placeholder="share your thoughts..."></textarea></div>
     <div class="modal-actions">
-      <button class="primary" onclick="confirmRepost()">repostear</button>
-      <button onclick="closeRepost()">cancelar</button>
+      <button class="primary" onclick="confirmRepost()">repost</button>
+      <button onclick="closeRepost()">cancel</button>
     </div>
   </div>
 </div>
@@ -536,14 +537,14 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 <!-- GROUP MODAL -->
 <div id="group-modal" class="modal-overlay hidden">
   <div class="modal-box">
-    <div class="modal-title">Nuevo Grupo</div>
-    <div class="field"><label>nombre del grupo</label><input id="group-name" type="text" placeholder="nombre..."></div>
-    <div class="field"><label>buscar usuarios</label><input id="group-search" type="text" placeholder="escribe un usuario..." oninput="searchGroupUsers(this.value)"></div>
+    <div class="modal-title">New Group</div>
+    <div class="field"><label>group name</label><input id="group-name" type="text" placeholder="group name..."></div>
+    <div class="field"><label>find people</label><input id="group-search" type="text" placeholder="search a username..." oninput="searchGroupUsers(this.value)"></div>
     <div id="group-user-results" style="margin-bottom:10px"></div>
     <div id="group-selected" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px"></div>
     <div class="modal-actions">
-      <button class="primary" onclick="createGroup()">crear grupo</button>
-      <button onclick="closeGroupModal()">cancelar</button>
+      <button class="primary" onclick="createGroup()">create group</button>
+      <button onclick="closeGroupModal()">cancel</button>
     </div>
   </div>
 </div>
@@ -551,24 +552,41 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 <!-- REPORT MODAL -->
 <div id="report-modal" class="modal-overlay hidden">
   <div class="modal-box">
-    <div class="modal-title">Reportar</div>
+    <div class="modal-title">Report</div>
     <div class="field">
-      <label>motivo</label>
+      <label>reason</label>
       <select id="report-reason">
         <option value="spam">spam</option>
-        <option value="acoso">acoso</option>
-        <option value="contenido inapropiado">contenido inapropiado</option>
-        <option value="otro">otro</option>
+        <option value="harassment">harassment</option>
+        <option value="inappropriate content">inappropriate content</option>
+        <option value="other">other</option>
       </select>
     </div>
     <div class="modal-actions">
-      <button class="primary" onclick="submitReport()">reportar</button>
-      <button onclick="closeReport()">cancelar</button>
+      <button class="primary" onclick="submitReport()">report</button>
+      <button onclick="closeReport()">cancel</button>
     </div>
   </div>
 </div>
 
 <div id="status"></div>
+
+<!-- SET PASSWORD SCREEN (for existing accounts) -->
+<div id="set-pass-screen" class="hidden" style="position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px;z-index:800;opacity:0;transform:translateY(14px);transition:opacity .4s ease,transform .4s ease">
+  <div class="auth-box">
+    <div class="auth-logo">ORZI <span>XAT</span></div>
+    <div class="auth-tagline">NEW — PASSWORD REQUIRED</div>
+    <div style="font-family:var(--fmono);font-size:11px;color:var(--sub);margin-bottom:20px;line-height:1.7;letter-spacing:.03em">
+      Hey <b id="sp-who" style="color:var(--accent2)"></b> 👋<br>
+      We added passwords to keep your account safe.<br>
+      Pick something you'll remember — there's no email recovery.
+    </div>
+    <div class="field"><label>new password</label><input id="sp-pass" type="password" placeholder="mínimo 6 caracteres" autocomplete="new-password"></div>
+    <div class="field"><label>confirm password</label><input id="sp-pass2" type="password" placeholder="repite la contraseña" autocomplete="new-password"></div>
+    <button class="primary auth-btn" onclick="doSetPassword()">SAVE & CONTINUE →</button>
+    <div class="auth-err" id="sp-err"></div>
+  </div>
+</div>
 
 <script>
 // ── CONFIG ────────────────────────────────────────────────────
@@ -595,40 +613,60 @@ window.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('offline', ()=>document.getElementById('offline-bar').style.display='block');
   if (!navigator.onLine) document.getElementById('offline-bar').style.display='block';
 
-  try { sb = supabase.createClient(SB_URL, SB_KEY); document.getElementById('sp-status').textContent='servidor listo ✓'; }
-  catch(e) { document.getElementById('sp-status').textContent='error de conexión'; }
+  try { sb = supabase.createClient(SB_URL, SB_KEY); document.getElementById('sp-status').textContent='server ready ✓'; }
+  catch(e) { document.getElementById('sp-status').textContent='connection error'; }
 
   const saved = localStorage.getItem('ox_user');
-  if (saved) setTimeout(()=>document.getElementById('sp-status').textContent='restaurando sesión...', 1200);
+  if (saved) setTimeout(()=>document.getElementById('sp-status').textContent='restoring your session...', 1200);
 
   setTimeout(()=>{
     document.getElementById('splash').classList.add('out');
-    setTimeout(()=>{
+    setTimeout(async ()=>{
       document.getElementById('splash').style.display='none';
-      if (saved) { currentUser=JSON.parse(saved); bootApp(); }
-      else showAuth();
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        const {data:fresh} = await sb.from('profiles').select('*').eq('id', parsed.id).single();
+        const profile = fresh || parsed;
+        if (profile.banned) { localStorage.clear(); showAuth(); return; }
+        currentUser = profile;
+        localStorage.setItem('ox_user', JSON.stringify(profile));
+        if (!profile.password_hash || profile.password_hash === '' || profile.password_hash === 'bot_no_login') {
+          showSetPassword();
+        } else {
+          bootApp();
+        }
+      } else {
+        showAuth();
+      }
     }, 750);
   }, 2600);
 });
 
 // ── AUTH TABS ─────────────────────────────────────────────────
+
 function showAuth() {
-  const s = document.getElementById('auth-screen');
-  s.classList.remove('hidden');
-  setTimeout(()=>s.classList.add('visible'), 30);
-}
-function switchAuthTab(tab) {
-  document.getElementById('form-login').classList.toggle('hidden', tab!=='login');
-  document.getElementById('form-register').classList.toggle('hidden', tab!=='register');
-  document.getElementById('tab-login').classList.toggle('active', tab==='login');
-  document.getElementById('tab-register').classList.toggle('active', tab==='register');
-  document.getElementById('auth-err').textContent='';
+  const screen = document.getElementById('auth-screen');
+  screen.classList.remove('hidden');
+  setTimeout(() => screen.classList.add('visible'), 30);
 }
 
-// ── PASSWORD HASH (simple, client-side) ──────────────────────
-async function hashPass(pass) {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pass));
-  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+function switchAuthTab(tab) {
+  document.getElementById('form-login').classList.toggle('hidden', tab !== 'login');
+  document.getElementById('form-register').classList.toggle('hidden', tab !== 'register');
+  document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+  document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+  document.getElementById('auth-err').textContent = '';
+}
+
+// ── PASSWORD HASH ────────────────────────────────────────────
+// We hash on the client before storing — simple but better than plaintext.
+// There's no email recovery, so keep your password somewhere safe.
+async function hashPass(password) {
+  const encoded = new TextEncoder().encode(password);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', encoded);
+  return Array.from(new Uint8Array(hashBuffer))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
 }
 
 // ── LOGIN ─────────────────────────────────────────────────────
@@ -636,14 +674,25 @@ async function doLogin() {
   const username = document.getElementById('l-user').value.trim().toLowerCase().replace(/[^a-z0-9_]/g,'');
   const pass     = document.getElementById('l-pass').value;
   const err      = document.getElementById('auth-err');
-  if (!username||!pass) { err.textContent='— rellena todos los campos'; return; }
+  if (!username) { err.textContent='— type your username'; return; }
 
   const {data:profile} = await sb.from('profiles').select('*').eq('id','u_'+username).single();
-  if (!profile) { err.textContent='— usuario no encontrado'; return; }
-  if (profile.banned) { err.textContent='— cuenta suspendida'; return; }
+  if (!profile) { err.textContent='— user not found'; return; }
+  if (profile.banned) { err.textContent='— account suspended'; return; }
 
+  // Account exists but no password yet → let them in to set one
+  const noPass = !profile.password_hash || profile.password_hash === '' || profile.password_hash === 'bot_no_login';
+  if (noPass) {
+    currentUser = profile;
+    localStorage.setItem('ox_user', JSON.stringify(profile));
+    document.getElementById('auth-screen').classList.add('hidden');
+    showSetPassword();
+    return;
+  }
+
+  if (!pass) { err.textContent='— enter your password'; return; }
   const hashed = await hashPass(pass);
-  if (profile.password_hash !== hashed) { err.textContent='— contraseña incorrecta'; return; }
+  if (profile.password_hash !== hashed) { err.textContent='— wrong password'; return; }
 
   currentUser = profile;
   localStorage.setItem('ox_user', JSON.stringify(profile));
@@ -658,13 +707,13 @@ async function doRegister() {
   const pass2    = document.getElementById('r-pass2').value;
   const err      = document.getElementById('auth-err');
 
-  if (!username||!dname||!pass) { err.textContent='— rellena todos los campos'; return; }
-  if (pass.length < 6) { err.textContent='— contraseña mínimo 6 caracteres'; return; }
+  if (!username||!dname||!pass) { err.textContent='— fill in all the fields'; return; }
+  if (pass.length < 6) { err.textContent='— password must be at least 6 characters'; return; }
   if (pass !== pass2) { err.textContent='— las contraseñas no coinciden'; return; }
 
   const id = 'u_'+username;
   const {data:existing} = await sb.from('profiles').select('id').eq('id',id).maybeSingle();
-  if (existing) { err.textContent='— ese usuario ya existe'; return; }
+  if (existing) { err.textContent='— that username is taken'; return; }
 
   const password_hash = await hashPass(pass);
   const {data,error} = await sb.from('profiles')
@@ -675,10 +724,34 @@ async function doRegister() {
 
   // Show UID to user before booting
   document.getElementById('auth-err').style.color='var(--success)';
-  err.textContent=`✓ cuenta creada — tu ID: ${id}`;
+  err.textContent=`✓ account created — your ID: ${id}`;
   currentUser = data;
   localStorage.setItem('ox_user', JSON.stringify(data));
   setTimeout(()=>{ bootApp(); sendBotDM(id); }, 1200);
+}
+
+// ── SET PASSWORD (for existing accounts migrating) ───────────
+function showSetPassword() {
+  document.getElementById('set-pass-screen').classList.remove('hidden');
+  setTimeout(()=>document.getElementById('set-pass-screen').classList.add('visible'), 30);
+  // Prefill name so they know who they are
+  const name = currentUser?.display_name || currentUser?.username || '';
+  document.getElementById('sp-who').textContent = name;
+}
+
+async function doSetPassword() {
+  const pass  = document.getElementById('sp-pass').value;
+  const pass2 = document.getElementById('sp-pass2').value;
+  const err   = document.getElementById('sp-err');
+  if (!pass || pass.length < 6) { err.textContent='— at least 6 characters'; return; }
+  if (pass !== pass2) { err.textContent='— las contraseñas no coinciden'; return; }
+  const password_hash = await hashPass(pass);
+  const {data, error} = await sb.from('profiles').update({password_hash}).eq('id', currentUser.id).select().single();
+  if (error) { err.textContent='— error: '+error.message; return; }
+  currentUser = data;
+  localStorage.setItem('ox_user', JSON.stringify(data));
+  document.getElementById('set-pass-screen').classList.add('hidden');
+  bootApp();
 }
 
 // ── BOOT ─────────────────────────────────────────────────────
@@ -701,49 +774,85 @@ function bootApp() {
   });
 
   showView('feed');
-  checkDMs(); checkNotifs();
-  setInterval(()=>{ checkDMs(); if(activeDmId) refreshActiveChat(); }, 4000);
+  checkDMs();
+  checkNotifs();
+  checkEarlyUser();
+
+  setInterval(() => {
+    checkDMs();
+    if (activeDmId) refreshActiveChat();
+  }, 4000);
+
   setInterval(checkNotifs, 12000);
-  setTimeout(()=>{ botTick(); setInterval(botTick,20000); }, 5000);
+
+  // give the bot a few seconds before it starts bothering people
+  setTimeout(() => {
+    botTick();
+    setInterval(botTick, 20000);
+  }, 5000);
 }
 
 function setNavAvatar() {
-  const el = document.getElementById('nav-av');
-  const ca = document.getElementById('compose-av');
-  if (!el) return;
+  const navEl    = document.getElementById('nav-av');
+  const composeEl = document.getElementById('compose-av');
+  if (!navEl) return;
+
   if (currentUser.avatar_url) {
-    el.innerHTML=`<img src="${esc(currentUser.avatar_url)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
-    if (ca) ca.innerHTML=`<img src="${esc(currentUser.avatar_url)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+    const imgTag = `<img src="${esc(currentUser.avatar_url)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+    navEl.innerHTML = imgTag;
+    if (composeEl) composeEl.innerHTML = imgTag;
   } else {
-    const i=currentUser.display_name[0].toUpperCase();
-    el.textContent=i; if(ca) ca.textContent=i;
+    // fall back to first letter of display name
+    const initial = currentUser.display_name[0].toUpperCase();
+    navEl.textContent = initial;
+    if (composeEl) composeEl.textContent = initial;
   }
 }
 
-function logout() { localStorage.clear(); location.reload(); }
+function logout() {
+  // wipe local session and start fresh
+  localStorage.clear();
+  location.reload();
+}
 
 // ── VIEWS ─────────────────────────────────────────────────────
 function showView(name, param) {
-  ['feed','explore','profile','dms','notifs','admin'].forEach(v=>{
-    document.getElementById('view-'+v).classList.add('hidden');
-    const nb=document.getElementById('nb-'+v); if(nb) nb.classList.remove('active');
+  // hide all views and deactivate nav buttons
+  ['feed', 'explore', 'profile', 'dms', 'notifs', 'admin'].forEach(viewName => {
+    document.getElementById('view-' + viewName).classList.add('hidden');
+    const btn = document.getElementById('nb-' + viewName);
+    if (btn) btn.classList.remove('active');
   });
-  document.getElementById('view-'+name).classList.remove('hidden');
-  const nb=document.getElementById('nb-'+name); if(nb) nb.classList.add('active');
-  if(name==='feed')    loadFeed();
-  if(name==='explore') loadExplore();
-  if(name==='profile') loadProfile(param||currentUser.id);
-  if(name==='dms')     loadDMs();
-  if(name==='notifs')  loadNotifs();
-  if(name==='admin')   loadAdmin();
+
+  // show the one we want
+  document.getElementById('view-' + name).classList.remove('hidden');
+  const activeBtn = document.getElementById('nb-' + name);
+  if (activeBtn) activeBtn.classList.add('active');
+
+  // load content for the view
+  if (name === 'feed')    loadFeed();
+  if (name === 'explore') loadExplore();
+  if (name === 'profile') loadProfile(param || currentUser.id);
+  if (name === 'dms')     loadDMs();
+  if (name === 'notifs')  loadNotifs();
+  if (name === 'admin')   loadAdmin();
 }
 
 // ── FEED ──────────────────────────────────────────────────────
-function switchFeedTab(tab, hashtag='') {
-  feedTab=tab; activeHashtag=hashtag;
-  ['global','following','hashtag'].forEach(t=>document.getElementById('tab-'+t)?.classList.remove('active'));
-  document.getElementById('tab-'+tab)?.classList.add('active');
-  if(hashtag){ document.getElementById('active-hashtag').textContent=hashtag; document.getElementById('tab-hashtag').style.display=''; }
+function switchFeedTab(tab, hashtag = '') {
+  feedTab = tab;
+  activeHashtag = hashtag;
+
+  ['global', 'following', 'hashtag'].forEach(t => {
+    document.getElementById('tab-' + t)?.classList.remove('active');
+  });
+  document.getElementById('tab-' + tab)?.classList.add('active');
+
+  if (hashtag) {
+    document.getElementById('active-hashtag').textContent = hashtag;
+    document.getElementById('tab-hashtag').style.display = '';
+  }
+
   loadFeed();
 }
 
@@ -754,7 +863,7 @@ async function loadFeed() {
     if(cached.length){c.innerHTML=cached.map(p=>postHTML(p,p.profiles,false,false)).join('');return;}
     c.innerHTML='<p class="empty-state">sin conexión</p>';return;
   }
-  c.innerHTML='<p class="empty-state" style="padding:20px 0">cargando...</p>';
+  c.innerHTML='<p class="empty-state" style="padding:20px 0">loading...</p>';
   let query=sb.from('posts').select('*, profiles!posts_author_id_fkey(*)').order('created_at',{ascending:false}).limit(60);
 
   if(feedTab==='following'){
@@ -847,7 +956,7 @@ function postHTML(post, author, liked, isFollowing, votedOption) {
   const replyCount=post.reply_count||0;
   return `
   <div class="post" id="post-${post.id}">
-    ${author.banned?'<div style="font-family:var(--fmono);font-size:9px;color:var(--danger);margin-bottom:8px;letter-spacing:.1em">USUARIO SUSPENDIDO</div>':''}
+    ${author.banned?'<div style="font-family:var(--fmono);font-size:9px;color:var(--danger);margin-bottom:8px;letter-spacing:.1em">ACCOUNT SUSPENDED</div>':''}
     <div class="post-header">
       ${avEl}
       <div class="post-meta">
@@ -868,7 +977,7 @@ function postHTML(post, author, liked, isFollowing, votedOption) {
       <button class="act-btn comment" onclick="toggleReplies('${post.id}')">💬 ${replyCount}</button>
       <button class="act-btn repost-act" onclick="openRepost('${post.id}')">↻</button>
       ${!isOwn&&!isBot?`<button class="act-btn" onclick="toggleFollow('${author.id}',${isFollowing})">${isFollowing?'✓ sig':'+ seguir'}</button>`:''}
-      ${!isOwn&&!isBot?`<button class="act-btn" onclick="startDM('${author.id}')">dm</button>`:''}
+      ${!isOwn&&!isBot?`<button class="act-btn" onclick="startDM('${author.id}')">message</button>`:''}
       ${!isOwn?`<button class="act-btn danger" onclick="openReport('post','${post.id}')">⚑</button>`:''}
       ${(isOwn||isAdmin)?`<button class="act-btn danger" onclick="deletePost('${post.id}')">✕</button>`:''}
     </div>
@@ -877,7 +986,7 @@ function postHTML(post, author, liked, isFollowing, votedOption) {
         <div id="replies-list-${post.id}"></div>
         <div class="reply-compose">
           <div class="compose-av" style="width:28px;height:28px;font-size:12px" id="rc-av-${post.id}"></div>
-          <textarea id="reply-inp-${post.id}" rows="1" placeholder="responder..." style="min-height:34px"></textarea>
+          <textarea id="reply-inp-${post.id}" rows="1" placeholder="write a reply..." style="min-height:34px"></textarea>
           <button onclick="submitReply('${post.id}')" style="align-self:flex-end;padding:6px 12px">→</button>
         </div>
       </div>
@@ -885,27 +994,37 @@ function postHTML(post, author, liked, isFollowing, votedOption) {
   </div>`;
 }
 
-// ── LIKES ─────────────────────────────────────────────────────
+// ── LIKES (real count from DB, no drift) ─────────────────────
 async function toggleLike(postId, wasLiked) {
-  const countEl=document.getElementById('lc-'+postId);
   const btn=document.querySelector(`#post-${postId} .act-btn.like`);
-  if(!countEl||!btn) return;
-  const cur=parseInt(countEl.textContent)||0;
+  if(!btn) return;
+
   if(wasLiked){
-    btn.classList.remove('liked'); btn.innerHTML=`♡ <span id="lc-${postId}">${Math.max(0,cur-1)}</span>`;
+    // Optimistic remove
+    btn.classList.remove('liked');
     await sb.from('likes').delete().eq('post_id',postId).eq('user_id',currentUser.id);
-    await sb.from('posts').update({likes_count:Math.max(0,cur-1)}).eq('id',postId);
   } else {
-    btn.classList.add('liked'); btn.innerHTML=`♥ <span id="lc-${postId}">${cur+1}</span>`;
+    // Optimistic add
+    btn.classList.add('liked');
     const{error}=await sb.from('likes').insert({post_id:postId,user_id:currentUser.id});
-    if(!error){
-      await sb.from('posts').update({likes_count:cur+1}).eq('id',postId);
-      const{data:p}=await sb.from('posts').select('author_id').eq('id',postId).single();
-      if(p&&p.author_id!==currentUser.id) createNotif(p.author_id,'like',`@${currentUser.username} ♥ dio like a tu post`,postId);
-    } else {
-      btn.classList.remove('liked'); btn.innerHTML=`♡ <span id="lc-${postId}">${cur}</span>`;
-    }
+    if(error){ btn.classList.remove('liked'); return; } // duplicate — revert
+    const{data:p}=await sb.from('posts').select('author_id').eq('id',postId).single();
+    if(p&&p.author_id!==currentUser.id) createNotif(p.author_id,'like',`@${currentUser.username} liked your post ♥`,postId);
   }
+
+  // Always recompute true count from likes table
+  const{count}=await sb.from('likes').select('id',{count:'exact',head:true}).eq('post_id',postId);
+  const trueCount=count||0;
+  await sb.from('posts').update({likes_count:trueCount}).eq('id',postId);
+
+  // Update counter in DOM
+  const countEl=document.getElementById('lc-'+postId);
+  if(countEl) countEl.textContent=trueCount;
+  // Re-render button with correct state
+  const nowLiked=!wasLiked;
+  btn.innerHTML=`${nowLiked?'♥':'♡'} <span id="lc-${postId}">${trueCount}</span>`;
+  btn.className=`act-btn like${nowLiked?' liked':''}`;
+  btn.setAttribute('onclick',`toggleLike('${postId}',${nowLiked})`);
 }
 
 async function votePoll(postId,option,alreadyVoted){
@@ -974,7 +1093,7 @@ async function publishPost(){
 
   const{error}=await sb.from('posts').insert(insertObj);
   btn.textContent='publicar'; btn.disabled=false;
-  if(error){ setStatus('error: '+error.message,'err'); return; }
+  if(error){ setStatus('oops: '+error.message,'err'); return; }
 
   inp.value=''; document.getElementById('cc').textContent='280';
   pendingImgs=[]; renderImgThumbs();
@@ -1032,15 +1151,26 @@ async function submitReply(postId){
   const inp=document.getElementById('reply-inp-'+postId);
   const content=inp.value.trim(); if(!content) return;
   await sb.from('replies').insert({post_id:postId,author_id:currentUser.id,content});
-  const{data:p}=await sb.from('posts').select('author_id,reply_count').eq('id',postId).single();
-  if(p){ await sb.from('posts').update({reply_count:(p.reply_count||0)+1}).eq('id',postId); if(p.author_id!==currentUser.id) createNotif(p.author_id,'reply',`@${currentUser.username} respondió a tu post`,postId); }
+  // Recompute true reply count
+  const{count}=await sb.from('replies').select('id',{count:'exact',head:true}).eq('post_id',postId);
+  const trueCount=count||0;
+  await sb.from('posts').update({reply_count:trueCount}).eq('id',postId);
+  // Notify author
+  const{data:p}=await sb.from('posts').select('author_id').eq('id',postId).single();
+  if(p&&p.author_id!==currentUser.id) createNotif(p.author_id,'reply',`@${currentUser.username} replied to your post`,postId);
+  // Update reply btn in DOM
+  const replyBtn=document.querySelector(`#post-${postId} .act-btn.comment`);
+  if(replyBtn) replyBtn.innerHTML=`💬 ${trueCount}`;
   inp.value=''; loadReplies(postId);
 }
 
 async function deleteReply(replyId,postId){
   await sb.from('replies').delete().eq('id',replyId);
-  const{data:p}=await sb.from('posts').select('reply_count').eq('id',postId).single();
-  if(p) await sb.from('posts').update({reply_count:Math.max(0,(p.reply_count||1)-1)}).eq('id',postId);
+  const{count}=await sb.from('replies').select('id',{count:'exact',head:true}).eq('post_id',postId);
+  const trueCount=count||0;
+  await sb.from('posts').update({reply_count:trueCount}).eq('id',postId);
+  const replyBtn=document.querySelector(`#post-${postId} .act-btn.comment`);
+  if(replyBtn) replyBtn.innerHTML=`💬 ${trueCount}`;
   loadReplies(postId);
 }
 
@@ -1058,25 +1188,31 @@ async function confirmRepost(){
   if(!repostTarget) return;
   const comment=document.getElementById('repost-comment').value.trim();
   await sb.from('posts').insert({author_id:currentUser.id,content:comment,likes_count:0,reply_count:0,repost_of:repostTarget.id,repost_data:{display_name:repostTarget.profiles?.display_name,username:repostTarget.profiles?.username,content:repostTarget.content}});
-  if(repostTarget.author_id!==currentUser.id) createNotif(repostTarget.author_id,'repost',`@${currentUser.username} reposteó tu post`,repostTarget.id);
-  closeRepost(); loadFeed(); setStatus('reposteado ✓','ok');
+  if(repostTarget.author_id!==currentUser.id) createNotif(repostTarget.author_id,'repost',`@${currentUser.username} reposted your post`,repostTarget.id);
+  closeRepost(); loadFeed(); setStatus('reposted ✓','ok');
 }
 
 async function deletePost(postId){ await sb.from('posts').delete().eq('id',postId); loadFeed(); }
 
 // ── FOLLOWS ───────────────────────────────────────────────────
-async function toggleFollow(userId,isFollowing){
-  if(isFollowing){ await sb.from('follows').delete().eq('follower_id',currentUser.id).eq('following_id',userId); }
-  else { await sb.from('follows').insert({follower_id:currentUser.id,following_id:userId}); createNotif(userId,'follow',`@${currentUser.username} te empezó a seguir`,null); }
+async function toggleFollow(userId, isFollowing) {
+  if (isFollowing) {
+    await sb.from('follows').delete()
+      .eq('follower_id', currentUser.id)
+      .eq('following_id', userId);
+  } else {
+    await sb.from('follows').insert({ follower_id: currentUser.id, following_id: userId });
+    createNotif(userId, 'follow', `@${currentUser.username} started following you`, null);
+  }
   loadFeed();
 }
 
 // ── EXPLORE / SEARCH ──────────────────────────────────────────
 async function loadExplore(){
   const c=document.getElementById('explore-list');
-  c.innerHTML='<p class="empty-state">cargando...</p>';
+  c.innerHTML='<p class="empty-state">loading...</p>';
   const{data:users}=await sb.from('profiles').select('*').neq('id',currentUser.id).neq('id',BOT_ID).eq('banned',false).limit(40);
-  if(!users?.length){c.innerHTML='<p class="empty-state">sin más usuarios aún</p>';return;}
+  if(!users?.length){c.innerHTML='<p class="empty-state">no other users yet</p>';return;}
   const followed=await getFollowingSet();
   c.innerHTML=users.map(u=>userCardHTML(u,followed.has(u.id))).join('');
 }
@@ -1085,7 +1221,7 @@ async function runSearch(q){
   const wrap=document.getElementById('search-results');
   if(!q.trim()){wrap.classList.add('hidden');return;}
   wrap.classList.remove('hidden');
-  wrap.innerHTML='<p class="empty-state" style="padding:10px 0">buscando...</p>';
+  wrap.innerHTML='<p class="empty-state" style="padding:10px 0">searching...</p>';
   const{data:users}=await sb.from('profiles').select('*').or(`username.ilike.%${q}%,display_name.ilike.%${q}%`).neq('id',currentUser.id).limit(10);
   const{data:posts}=await sb.from('posts').select('*, profiles!posts_author_id_fkey(*)').ilike('content',`%${q}%`).order('created_at',{ascending:false}).limit(10);
   const followed=await getFollowingSet();
@@ -1118,7 +1254,7 @@ function userCardHTML(u,isFollowing){
 // ── PROFILE ───────────────────────────────────────────────────
 async function loadProfile(userId,tab='posts'){
   const c=document.getElementById('profile-content');
-  c.innerHTML='<p class="empty-state">cargando...</p>';
+  c.innerHTML='<p class="empty-state">loading...</p>';
   const{data:p}=await sb.from('profiles').select('*').eq('id',userId).single();
   if(!p){c.innerHTML='<p class="empty-state">perfil no encontrado</p>';return;}
   const{count:pc}=await sb.from('posts').select('id',{count:'exact',head:true}).eq('author_id',userId);
@@ -1132,9 +1268,16 @@ async function loadProfile(userId,tab='posts'){
   const vbadge=p.verified?`<span class="profile-verified">✓</span>`:'';
   const isAdminUser=ADMIN_IDS.includes(p.id)||p.username===ADMIN_USER;
 
+  const isOwnProfile = isOwn;
+  const dragBannerAttrs = isOwnProfile ? `ondragover="event.preventDefault();this.style.outline='2px dashed var(--accent)'" ondragleave="this.style.outline=''" ondrop="handleProfileImgDrop(event,'banner')"` : '';
+  const dragAvatarAttrs = isOwnProfile ? `ondragover="event.preventDefault();this.style.outline='2px dashed var(--accent2)'" ondragleave="this.style.outline=''" ondrop="handleProfileImgDrop(event,'avatar')"` : '';
+  const dragHint = isOwnProfile ? `<div style="font-family:var(--fmono);font-size:9px;color:var(--muted);letter-spacing:.1em;text-align:center;margin-top:3px;opacity:.6">drag here to change</div>` : '';
+
   c.innerHTML=`
-    ${p.banner_url?`<img src="${esc(p.banner_url)}" class="profile-banner">`:`<div class="profile-banner-empty"></div>`}
-    <div class="profile-avatar-wrap">${av}</div>
+    ${p.banner_url
+      ?`<img src="${esc(p.banner_url)}" class="profile-banner" ${dragBannerAttrs} title="${isOwnProfile?'drag an image here to set your banner':''}">`
+      :`<div class="profile-banner-empty" ${dragBannerAttrs} title="${isOwnProfile?'arrastra una imagen para cambiar el banner':''}"></div>`}
+    <div class="profile-avatar-wrap" ${dragAvatarAttrs} title="${isOwnProfile?'drag an image here to set your avatar':''}">${av}${dragHint}</div>
     <div class="profile-info" style="padding:10px 0 0">
       <div><span class="profile-dname">${esc(p.display_name)}</span>${vbadge}${isAdminUser?`<span class="admin-badge badge-admin" style="margin-left:6px;vertical-align:middle">ADMIN</span>`:''}</div>
       <div class="profile-handle">@${esc(p.username)}</div>
@@ -1142,11 +1285,11 @@ async function loadProfile(userId,tab='posts'){
       ${p.bio?`<div class="profile-bio">${esc(p.bio)}</div>`:''}
       <div class="profile-stats">
         <span><b>${pc||0}</b> posts</span>
-        <span onclick="loadFollowList('${userId}','followers')"><b>${flrC||0}</b> seguidores</span>
-        <span onclick="loadFollowList('${userId}','following')"><b>${flgC||0}</b> siguiendo</span>
+        <span onclick="loadFollowList('${userId}','followers')"><b>${flrC||0}</b> followers</span>
+        <span onclick="loadFollowList('${userId}','following')"><b>${flgC||0}</b> following</span>
       </div>
       <div class="profile-btns">
-        ${isOwn?`<button onclick="openEdit()">editar perfil</button>`:`<button onclick="toggleFollow('${p.id}',${isFollowing})">${isFollowing?'✓ siguiendo':'+ seguir'}</button><button onclick="startDM('${p.id}')">dm</button><button class="danger" onclick="openReport('user','${p.id}')">⚑ reportar</button>`}
+        ${isOwn?`<button onclick="openEdit()">edit profile</button>`:`<button onclick="toggleFollow('${p.id}',${isFollowing})">${isFollowing?'✓ siguiendo':'+ seguir'}</button><button onclick="startDM('${p.id}')">dm</button><button class="danger" onclick="openReport('user','${p.id}')">⚑ report</button>`}
       </div>
     </div>
     <div class="profile-tabs">
@@ -1163,7 +1306,7 @@ async function loadProfile(userId,tab='posts'){
     pc2.innerHTML=posts?.length?posts.map(x=>postHTML(x,p,liked.has(x.id),false)).join(''):'<p class="empty-state">sin posts</p>';
   } else {
     const{data:likedPosts}=await sb.from('likes').select('post_id').eq('user_id',userId).limit(30);
-    if(!likedPosts?.length){pc2.innerHTML='<p class="empty-state">sin likes aún</p>';return;}
+    if(!likedPosts?.length){pc2.innerHTML='<p class="empty-state">no likes yet</p>';return;}
     const{data:posts}=await sb.from('posts').select('*, profiles!posts_author_id_fkey(*)').in('id',likedPosts.map(l=>l.post_id)).order('created_at',{ascending:false});
     const liked=new Set(likedPosts.map(l=>l.post_id));
     pc2.innerHTML=posts?.length?posts.map(x=>postHTML(x,x.profiles,liked.has(x.id),false)).join(''):'<p class="empty-state">sin likes</p>';
@@ -1172,14 +1315,35 @@ async function loadProfile(userId,tab='posts'){
 
 async function loadFollowList(userId,type){
   const pc=document.getElementById('profile-posts-content'); if(!pc) return;
-  pc.innerHTML='<p class="empty-state">cargando...</p>';
+  pc.innerHTML='<p class="empty-state">loading...</p>';
   let ids=[];
   if(type==='followers'){ const{data}=await sb.from('follows').select('follower_id').eq('following_id',userId); ids=data?.map(f=>f.follower_id)||[]; }
   else { const{data}=await sb.from('follows').select('following_id').eq('follower_id',userId); ids=data?.map(f=>f.following_id)||[]; }
-  if(!ids.length){pc.innerHTML='<p class="empty-state">ninguno aún</p>';return;}
+  if(!ids.length){pc.innerHTML='<p class="empty-state">nobody yet</p>';return;}
   const{data:users}=await sb.from('profiles').select('*').in('id',ids);
   const followed=await getFollowingSet();
   pc.innerHTML=users?.map(u=>userCardHTML(u,followed.has(u.id))).join('')||'';
+}
+
+// ── DRAG TO PROFILE ──────────────────────────────────────────
+async function handleProfileImgDrop(event, type) {
+  event.preventDefault();
+  event.target.style.outline = '';
+  const file = event.dataTransfer.files[0];
+  if (!file || !file.type.startsWith('image/')) { setStatus('images only please','err'); return; }
+  setStatus('uploading...', '');
+  const fname = `${currentUser.id}_${type}_${Date.now()}.jpg`;
+  const {error:ue} = await sb.storage.from('post-images').upload(fname, file, {contentType:file.type, upsert:true});
+  if (ue) { setStatus('upload failed','err'); return; }
+  const {data:ud} = sb.storage.from('post-images').getPublicUrl(fname);
+  const field = type === 'banner' ? 'banner_url' : 'avatar_url';
+  const {data, error} = await sb.from('profiles').update({[field]: ud.publicUrl}).eq('id', currentUser.id).select().single();
+  if (error) { setStatus('couldn\'t save that','err'); return; }
+  currentUser = data;
+  localStorage.setItem('ox_user', JSON.stringify(data));
+  setNavAvatar();
+  setStatus(`${type === 'banner' ? 'banner' : 'avatar'} actualizado ✓`, 'ok');
+  loadProfile(currentUser.id);
 }
 
 // ── EDIT PROFILE ─────────────────────────────────────────────
@@ -1198,21 +1362,21 @@ async function saveProfile(){
   const avatar_url=document.getElementById('e-avatar').value.trim();
   const banner_url=document.getElementById('e-banner').value.trim();
   const newPass=document.getElementById('e-pass').value;
-  if(!display_name){setStatus('nombre vacío','err');return;}
+  if(!display_name){setStatus('display name can\'t be empty','err');return;}
   const updates={display_name,bio,avatar_url,banner_url};
-  if(newPass){ if(newPass.length<6){setStatus('contraseña mínimo 6 chars','err');return;} updates.password_hash=await hashPass(newPass); }
+  if(newPass){ if(newPass.length<6){setStatus('password needs at least 6 characters','err');return;} updates.password_hash=await hashPass(newPass); }
   const{data,error}=await sb.from('profiles').update(updates).eq('id',currentUser.id).select().single();
-  if(error){setStatus('error: '+error.message,'err');return;}
+  if(error){setStatus('oops: '+error.message,'err');return;}
   currentUser=data; localStorage.setItem('ox_user',JSON.stringify(data));
   document.getElementById('nav-user').textContent=currentUser.username;
-  setNavAvatar(); closeEdit(); loadProfile(currentUser.id); setStatus('perfil actualizado ✓','ok');
+  setNavAvatar(); closeEdit(); loadProfile(currentUser.id); setStatus('profile updated ✓','ok');
 }
 
 // ── NOTIFICATIONS ─────────────────────────────────────────────
 async function createNotif(userId,type,text,postId){ await sb.from('notifications').insert({user_id:userId,type,text,post_id:postId,read:false}); }
 async function loadNotifs(){
   const c=document.getElementById('notifs-list');
-  c.innerHTML='<p class="empty-state">cargando...</p>';
+  c.innerHTML='<p class="empty-state">loading...</p>';
   const{data}=await sb.from('notifications').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(50);
   if(!data?.length){c.innerHTML='<p class="empty-state">sin notificaciones</p>';return;}
   const icons={like:'♥',reply:'💬',follow:'👤',repost:'↻'};
@@ -1251,7 +1415,7 @@ async function loadDMs(){
   if(groups?.length){
     const sep=document.createElement('div');
     sep.style='padding:8px 13px;font-family:var(--fmono);font-size:8px;color:var(--muted);letter-spacing:.25em;border-top:1px solid var(--border);text-transform:uppercase';
-    sep.textContent='GRUPOS'; c.appendChild(sep);
+    sep.textContent='GROUPS'; c.appendChild(sep);
     groups.forEach(gm=>{
       if(!gm.groups) return;
       const btn=document.createElement('button');
@@ -1261,11 +1425,11 @@ async function loadDMs(){
       c.appendChild(btn);
     });
   }
-  if(!otherIds.length&&!groups?.length) c.innerHTML='<p class="empty-state" style="font-size:10px;padding:14px">sin chats aún</p>';
+  if(!otherIds.length&&!groups?.length) c.innerHTML='<p class="empty-state" style="font-size:10px;padding:14px">no chats yet aún</p>';
 }
 
 async function startDM(userId){
-  if(userId===currentUser.id){setStatus('no puedes enviarte dm a ti mismo','err');return;}
+  if(userId===currentUser.id){setStatus('you can\'t DM yourself','err');return;}
   showView('dms'); setTimeout(()=>openDMChat(userId,false),250);
 }
 
@@ -1275,7 +1439,7 @@ async function openDMChat(targetId,isGroup,groupName=''){
   const panel=document.getElementById('dm-chat-panel');
   let headHTML='';
   if(isGroup){
-    headHTML=`<div class="dm-chat-head"><div class="dm-conv-av" style="background:var(--accent4);color:#000;font-size:13px">${groupName[0].toUpperCase()}</div><div><div class="dm-chat-head-name">${esc(groupName)}</div><div class="dm-chat-head-handle">grupo</div></div></div>`;
+    headHTML=`<div class="dm-chat-head"><div class="dm-conv-av" style="background:var(--accent4);color:#000;font-size:13px">${groupName[0].toUpperCase()}</div><div><div class="dm-chat-head-name">${esc(groupName)}</div><div class="dm-chat-head-handle">group</div></div></div>`;
   } else {
     const{data:other}=await sb.from('profiles').select('*').eq('id',targetId).single();
     if(!other) return;
@@ -1290,7 +1454,7 @@ async function openDMChat(targetId,isGroup,groupName=''){
     <div class="dm-compose">
       <button class="dm-compose-img" onclick="document.getElementById('dm-img-input').click()" title="adjuntar imagen">📎</button>
       <input type="file" id="dm-img-input" accept="image/*" style="display:none" onchange="sendDMWithImg(this,'${targetId}',${isGroup})">
-      <input type="text" id="dm-inp" placeholder="escribe..." autocomplete="off">
+      <input type="text" id="dm-inp" placeholder="message..." autocomplete="off">
       <button class="primary" onclick="sendDM('${targetId}',${isGroup})" style="padding:8px 14px">→</button>
     </div>
   </div>`;
@@ -1311,7 +1475,7 @@ async function renderMessages(targetId,isGroup){
     const seenEl=document.getElementById('dm-seen-row');
     if(seenEl){ seenEl.classList.toggle('hidden',!lastOut?.seen); }
   }
-  if(!msgs.length){box.innerHTML='<div style="font-family:var(--fmono);font-size:10px;color:var(--muted);text-align:center;padding:28px;letter-spacing:.1em">sin mensajes aún</div>';return;}
+  if(!msgs.length){box.innerHTML='<div style="font-family:var(--fmono);font-size:10px;color:var(--muted);text-align:center;padding:28px;letter-spacing:.1em">no messages yet — say hi 👋</div>';return;}
   box.innerHTML=msgs.map(m=>{
     const isMe=m.sender_id===currentUser.id;
     const senderName=isGroup&&!isMe?`<div style="font-family:var(--fmono);font-size:8px;color:var(--muted);margin-bottom:3px;letter-spacing:.05em">${esc(m.profiles?.display_name||'?')}</div>`:'';
@@ -1365,19 +1529,19 @@ function closeGroupModal(){document.getElementById('group-modal').classList.add(
 async function searchGroupUsers(q){
   if(!q.trim()){document.getElementById('group-user-results').innerHTML='';return;}
   const{data}=await sb.from('profiles').select('id,display_name,username').ilike('username',`%${q}%`).neq('id',currentUser.id).limit(8);
-  document.getElementById('group-user-results').innerHTML=(data||[]).map(u=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)"><span style="font-size:13px">${esc(u.display_name)} <span style="font-family:var(--fmono);font-size:10px;color:var(--muted)">@${esc(u.username)}</span></span><button onclick="addToGroup('${u.id}','${esc(u.display_name)}')">+ añadir</button></div>`).join('');
+  document.getElementById('group-user-results').innerHTML=(data||[]).map(u=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)"><span style="font-size:13px">${esc(u.display_name)} <span style="font-family:var(--fmono);font-size:10px;color:var(--muted)">@${esc(u.username)}</span></span><button onclick="addToGroup('${u.id}','${esc(u.display_name)}')">+ add</button></div>`).join('');
 }
 function addToGroup(id,name){if(groupSelectedUsers.find(u=>u.id===id))return;groupSelectedUsers.push({id,name});renderGroupSelected();}
 function removeFromGroup(id){groupSelectedUsers=groupSelectedUsers.filter(u=>u.id!==id);renderGroupSelected();}
 function renderGroupSelected(){document.getElementById('group-selected').innerHTML=groupSelectedUsers.map(u=>`<span class="chip">${esc(u.name)} <span style="cursor:pointer;color:var(--danger);margin-left:2px" onclick="removeFromGroup('${u.id}')">✕</span></span>`).join('');}
 async function createGroup(){
   const name=document.getElementById('group-name').value.trim();
-  if(!name){setStatus('ponle nombre al grupo','err');return;}
-  if(groupSelectedUsers.length<1){setStatus('añade al menos un usuario','err');return;}
+  if(!name){setStatus('give the group a name first','err');return;}
+  if(groupSelectedUsers.length<1){setStatus('add at least one person','err');return;}
   const{data:group,error}=await sb.from('groups').insert({name,created_by:currentUser.id}).select().single();
-  if(error){setStatus('error creando grupo','err');return;}
+  if(error){setStatus('couldn\'t create that group','err');return;}
   await sb.from('group_members').insert([{group_id:group.id,user_id:currentUser.id},...groupSelectedUsers.map(u=>({group_id:group.id,user_id:u.id}))]);
-  closeGroupModal(); loadDMs(); setStatus('grupo creado ✓','ok');
+  closeGroupModal(); loadDMs(); setStatus('group created ✓','ok');
   setTimeout(()=>openDMChat(group.id,true,name),400);
 }
 
@@ -1387,7 +1551,7 @@ function closeReport(){document.getElementById('report-modal').classList.add('hi
 async function submitReport(){
   if(!reportTarget) return;
   await sb.from('reports').insert({reporter_id:currentUser.id,target_type:reportTarget.type,target_id:reportTarget.id,reason:document.getElementById('report-reason').value});
-  closeReport(); setStatus('reportado — gracias','ok');
+  closeReport(); setStatus('reported — thanks','ok');
 }
 
 // ── ADMIN ─────────────────────────────────────────────────────
@@ -1407,30 +1571,88 @@ async function loadAdmin(){
   </div>`).join('');
 
   const{data:reports}=await sb.from('reports').select('*').order('created_at',{ascending:false}).limit(30);
-  document.getElementById('admin-reports').innerHTML=!reports?.length?'<p class="empty-state">sin reportes</p>':reports.map(r=>`<div class="report-item"><b>${esc(r.target_type)}</b> → <span style="font-family:var(--fmono);font-size:11px">${esc(r.target_id)}</span><div class="report-reason">${esc(r.reason)}</div><div style="font-family:var(--fmono);font-size:9px;color:var(--muted);margin-top:4px">${timeAgo(r.created_at)}</div><button class="danger" style="margin-top:6px;font-size:10px" onclick="adminDeleteReport('${r.id}')">descartar</button></div>`).join('');
+  document.getElementById('admin-reports').innerHTML=!reports?.length?'<p class="empty-state">sin reportes</p>':reports.map(r=>`<div class="report-item"><b>${esc(r.target_type)}</b> → <span style="font-family:var(--fmono);font-size:11px">${esc(r.target_id)}</span><div class="report-reason">${esc(r.reason)}</div><div style="font-family:var(--fmono);font-size:9px;color:var(--muted);margin-top:4px">${timeAgo(r.created_at)}</div><button class="danger" style="margin-top:6px;font-size:10px" onclick="adminDeleteReport('${r.id}')">dismiss</button></div>`).join('');
 
   const{data:posts}=await sb.from('posts').select('*, profiles!posts_author_id_fkey(display_name,username)').order('created_at',{ascending:false}).limit(20);
   document.getElementById('admin-posts').innerHTML=(posts||[]).map(p=>`<div class="admin-item" style="align-items:flex-start;flex-direction:column;gap:5px">
     <div style="font-size:12px"><b>${esc(p.profiles?.display_name||'?')}</b> <span style="font-family:var(--fmono);font-size:9px;color:var(--muted)">@${esc(p.profiles?.username||'?')} · ${timeAgo(p.created_at)}</span></div>
     <div style="font-size:12px;color:var(--sub)">${esc((p.content||'').slice(0,100))}</div>
-    <button class="danger" style="font-size:10px;padding:4px 10px" onclick="deletePost('${p.id}');loadAdmin()">borrar</button>
+    <button class="danger" style="font-size:10px;padding:4px 10px" onclick="deletePost('${p.id}');loadAdmin()">delete</button>
   </div>`).join('');
 }
 async function adminToggleVerify(userId,cur){ await sb.from('profiles').update({verified:!cur}).eq('id',userId); loadAdmin(); }
 async function adminToggleBan(userId,cur){ await sb.from('profiles').update({banned:!cur}).eq('id',userId); loadAdmin(); }
 async function adminDeleteReport(id){ await sb.from('reports').delete().eq('id',id); loadAdmin(); }
 
+// ── EARLY USER BANNER ────────────────────────────────────────
+async function checkEarlyUser() {
+  // count total real users (excluding the bot)
+  const { count } = await sb
+    .from('profiles')
+    .select('id', { count: 'exact', head: true })
+    .neq('id', BOT_ID);
+
+  if (!count || count >= 100) return;
+
+  // only show the banner once per session
+  if (sessionStorage.getItem('ox_early_shown')) return;
+  sessionStorage.setItem('ox_early_shown', '1');
+
+  const banner = document.createElement('div');
+  banner.id = 'early-banner';
+  banner.innerHTML = `
+    <div style="
+      position: fixed;
+      bottom: 72px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--accent);
+      color: #000;
+      font-family: var(--fmono);
+      font-size: 11px;
+      letter-spacing: .12em;
+      padding: 12px 22px;
+      border-radius: 24px;
+      box-shadow: 0 4px 24px rgba(212,255,0,.3);
+      z-index: 9990;
+      text-align: center;
+      opacity: 0;
+      transition: opacity .4s ease, transform .4s ease;
+      white-space: nowrap;
+      cursor: pointer;
+    " id="early-inner">
+      🎉 congrats, eres uno de los primeros ${count} users
+    </div>`;
+
+  document.body.appendChild(banner);
+
+  // animate in
+  setTimeout(() => {
+    const el = document.getElementById('early-inner');
+    if (el) { el.style.opacity = '1'; el.style.transform = 'translateX(0) translateY(0)'; }
+  }, 800);
+
+  // dismiss on click or auto-hide after 6s
+  const dismiss = () => {
+    const el = document.getElementById('early-inner');
+    if (el) { el.style.opacity = '0'; el.style.transform = 'translateX(0) translateY(10px)'; }
+    setTimeout(() => banner.remove(), 500);
+  };
+  banner.addEventListener('click', dismiss);
+  setTimeout(dismiss, 6000);
+}
+
 // ── BOT ───────────────────────────────────────────────────────
 async function sendBotDM(userId){
   await sb.from('profiles').upsert({id:BOT_ID,username:'orzixat_bot',display_name:'ORZI BOT',bio:'Bot oficial de ORZI XAT 🤖',avatar_url:'',banner_url:'',verified:true,banned:false,password_hash:'bot_no_login'},{onConflict:'id'});
-  await sb.from('messages').insert({sender_id:BOT_ID,receiver_id:userId,content:'👋 ¡Bienvenido/a a ORZI XAT! Soy el bot oficial. Te daré like a tus posts automáticamente. Si tienes algún problema escríbele a @saad. ¡Disfruta!',is_group:false,group_id:null,seen:false});
+  await sb.from('messages').insert({sender_id:BOT_ID,receiver_id:userId,content:'👋 Bienvenido/a a ORZI XAT! Soy el bot oficial. Te dare like a tus posts automaticamente. Si algo falla, escribele a @saad. Disfruta!',is_group:false,group_id:null,seen:false});
 }
 
 async function botTick(){
   if(!currentUser||!sb) return;
   await sb.from('profiles').upsert({id:BOT_ID,username:'orzixat_bot',display_name:'ORZI BOT',bio:'Bot oficial 🤖',avatar_url:'',banner_url:'',verified:true,banned:false,password_hash:'bot_no_login'},{onConflict:'id'});
   const{data:af}=await sb.from('follows').select('id').eq('follower_id',BOT_ID).eq('following_id',currentUser.id).maybeSingle();
-  if(!af){ await sb.from('follows').insert({follower_id:BOT_ID,following_id:currentUser.id}); createNotif(currentUser.id,'follow','ORZI BOT te empezó a seguir 🤖',null); }
+  if(!af){ await sb.from('follows').insert({follower_id:BOT_ID,following_id:currentUser.id}); createNotif(currentUser.id,'follow','ORZI BOT started following you 🤖',null); }
   const{data:posts}=await sb.from('posts').select('id,likes_count,content,author_id').eq('author_id',currentUser.id).order('created_at',{ascending:false}).limit(10);
   if(!posts?.length) return;
   for(const post of posts){
@@ -1440,7 +1662,7 @@ async function botTick(){
       const{error}=await sb.from('likes').insert({post_id:post.id,user_id:BOT_ID});
       if(!error){
         await sb.from('posts').update({likes_count:(post.likes_count||0)+1}).eq('id',post.id);
-        createNotif(currentUser.id,'like','ORZI BOT ♥ dio like a tu post 🤖',post.id);
+        createNotif(currentUser.id,'like','ORZI BOT ♥ liked your post 🤖',post.id);
         botLiked.add(post.id); localStorage.setItem('ox_bot_liked',JSON.stringify([...botLiked]));
         if(!document.getElementById('view-feed').classList.contains('hidden')) loadFeed();
       }
@@ -1450,7 +1672,7 @@ async function botTick(){
           await sb.from('replies').insert({post_id:post.id,author_id:BOT_ID,content:text});
           const{data:p}=await sb.from('posts').select('reply_count').eq('id',post.id).single();
           if(p) await sb.from('posts').update({reply_count:(p.reply_count||0)+1}).eq('id',post.id);
-          createNotif(currentUser.id,'reply',`ORZI BOT respondió: "${text}" 🤖`,post.id);
+          createNotif(currentUser.id,'reply',`ORZI BOT replied: "${text}" 🤖`,post.id);
           botReplied.add(post.id); localStorage.setItem('ox_bot_replied',JSON.stringify([...botReplied]));
         },2000+Math.random()*5000);
       }
@@ -1460,12 +1682,22 @@ async function botTick(){
 
 // ── UTILS ─────────────────────────────────────────────────────
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function timeAgo(ts){const s=Math.floor((Date.now()-new Date(ts))/1000);if(s<60)return s+'s';if(s<3600)return Math.floor(s/60)+'m';if(s<86400)return Math.floor(s/3600)+'h';return Math.floor(s/86400)+'d';}
+function timeAgo(ts) {
+  const seconds = Math.floor((Date.now() - new Date(ts)) / 1000);
+  if (seconds < 60)   return seconds + 's';
+  if (seconds < 3600) return Math.floor(seconds / 60) + 'm';
+  if (seconds < 86400) return Math.floor(seconds / 3600) + 'h';
+  return Math.floor(seconds / 86400) + 'd';
+}
 let statusTimer;
-function setStatus(msg,type=''){
-  const el=document.getElementById('status');
-  el.textContent=msg; el.className=type?'show '+type:'show';
-  clearTimeout(statusTimer); statusTimer=setTimeout(()=>el.className='',3200);
+
+function setStatus(msg, type = '') {
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.className = type ? 'show ' + type : 'show';
+
+  clearTimeout(statusTimer);
+  statusTimer = setTimeout(() => { el.className = ''; }, 3200);
 }
 </script>
 </body>
