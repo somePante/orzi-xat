@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ORZI XAT</title>
+<link rel="manifest" href="data:application/json,{&quot;name&quot;:&quot;ORZI XAT&quot;,&quot;short_name&quot;:&quot;ORZI&quot;,&quot;display&quot;:&quot;standalone&quot;,&quot;background_color&quot;:&quot;%230a0a0a&quot;,&quot;theme_color&quot;:&quot;%230a0a0a&quot;}">
+<meta name="theme-color" content="#0a0a0a">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@300;400;600;700&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0a;--s1:#111;--s2:#1a1a1a;--s3:#242424;
+  --border:#2e2e2e;--border2:#3d3d3d;
+  --accent:#e2ff00;--accent2:#00e5ff;--accent3:#ff6b9d;
+  --text:#e0e0e0;--sub:#888;--muted:#555;
+  --danger:#ff4d4d;--success:#00e676;--warn:#ffab40;
+  --ftitle:'Bebas Neue',sans-serif;--fmono:'DM Mono',monospace;--fbody:'Rajdhani',sans-serif;
+  --r:4px;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--fbody);font-size:15px;line-height:1.5;overflow-x:hidden}
+a{color:var(--accent2);text-decoration:none}a:hover{text-decoration:underline}
+button{font-family:var(--fmono);font-size:11px;font-weight:400;letter-spacing:.08em;cursor:pointer;border:1px solid var(--border2);background:var(--s3);color:var(--text);padding:6px 14px;border-radius:var(--r);transition:all .15s ease}
+button:hover{background:var(--s2);border-color:var(--accent);color:var(--accent)}
+button.primary{background:var(--accent);color:#000;border-color:var(--accent);font-weight:500}
+button.primary:hover{background:#f5ff55;border-color:#f5ff55;color:#000}
+button.danger:hover{border-color:var(--danger);color:var(--danger);background:var(--s2)}
+button.active-btn{background:var(--accent);color:#000;border-color:var(--accent)}
+input,textarea{font-family:var(--fmono);font-size:13px;background:var(--s2);border:1px solid var(--border);color:var(--text);padding:9px 12px;border-radius:var(--r);outline:none;width:100%;transition:border-color .15s;resize:vertical}
+input:focus,textarea:focus{border-color:var(--accent2)}
+input::placeholder,textarea::placeholder{color:var(--muted)}
+.hidden{display:none!important}
+
+/* ── SPLASH ── */
+#splash{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999}
+#splash.out{animation:splashFade .7s cubic-bezier(.77,0,.18,1) forwards;pointer-events:none}
+@keyframes splashFade{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.04)}}
+.sp-title{font-family:var(--ftitle);font-size:clamp(80px,22vw,190px);letter-spacing:.06em;line-height:.86;text-align:center}
+.sp-title .ln{display:block;overflow:hidden}
+.sp-title .ln span{display:block;transform:translateY(110%)}
+.sp-title .ln:nth-child(1) span{animation:slideUp .6s cubic-bezier(.22,1,.36,1) .1s forwards}
+.sp-title .ln:nth-child(2) span{animation:slideUp .6s cubic-bezier(.22,1,.36,1) .22s forwards;color:var(--accent)}
+@keyframes slideUp{to{transform:translateY(0)}}
+.sp-by{font-family:var(--fmono);font-size:11px;letter-spacing:.35em;color:var(--muted);margin-top:22px;opacity:0;animation:fadeIn .5s ease .75s forwards}
+.sp-by b{color:var(--sub)}
+.sp-loader{margin-top:42px;width:200px;height:1px;background:var(--border);overflow:hidden;opacity:0;animation:fadeIn .4s ease .9s forwards}
+.sp-loader::after{content:'';display:block;height:100%;width:0%;background:var(--accent);animation:loadBar 1.4s cubic-bezier(.4,0,.2,1) 1s forwards}
+@keyframes loadBar{to{width:100%}}
+.sp-status{font-family:var(--fmono);font-size:10px;color:var(--muted);letter-spacing:.2em;margin-top:12px;opacity:0;animation:fadeIn .4s ease 1s forwards}
+@keyframes fadeIn{to{opacity:1}}
+
+/* ── SETUP ── */
+#setup{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px 20px;opacity:0;transform:translateY(18px);transition:opacity .5s ease,transform .5s ease}
+#setup.visible{opacity:1;transform:translateY(0)}
+.setup-box{width:100%;max-width:400px;background:var(--s1);border:1px solid var(--border);border-radius:8px;padding:36px 30px}
+.setup-logo{font-family:var(--ftitle);font-size:52px;letter-spacing:.06em;line-height:1;margin-bottom:4px}
+.setup-logo span{color:var(--accent)}
+.setup-tagline{font-family:var(--fmono);font-size:10px;letter-spacing:.3em;color:var(--muted);margin-bottom:28px;text-transform:uppercase}
+.field{margin-bottom:14px}
+.field label{display:block;font-family:var(--fmono);font-size:10px;letter-spacing:.2em;color:var(--sub);margin-bottom:5px;text-transform:uppercase}
+.setup-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.setup-enter{width:100%;margin-top:6px;padding:11px;font-size:12px;letter-spacing:.15em}
+.setup-err{font-family:var(--fmono);font-size:11px;color:var(--danger);margin-top:10px;min-height:16px}
+
+/* ── APP ── */
+#app{display:flex;flex-direction:column;min-height:100vh;max-width:680px;margin:0 auto;padding:0 16px;opacity:0;transition:opacity .4s ease}
+#app.visible{opacity:1}
+
+/* NAV */
+#nav{display:flex;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(10,10,10,.95);backdrop-filter:blur(12px);z-index:100;gap:4px;flex-wrap:wrap}
+.nav-logo{font-family:var(--ftitle);font-size:20px;letter-spacing:.08em;margin-right:10px;flex-shrink:0}
+.nav-logo span{color:var(--accent)}
+.nav-links{display:flex;gap:2px;flex:1;flex-wrap:wrap}
+.nav-btn{font-family:var(--fmono);font-size:10px;letter-spacing:.1em;color:var(--sub);background:none;border:none;padding:5px 9px;cursor:pointer;border-radius:var(--r);transition:all .15s;text-transform:uppercase;position:relative}
+.nav-btn:hover,.nav-btn.active{color:var(--accent);background:rgba(226,255,0,.06);border:none}
+.nav-badge{background:var(--danger);color:#fff;font-size:9px;border-radius:8px;padding:1px 5px;margin-left:3px;vertical-align:middle}
+.nav-user{font-family:var(--fmono);font-size:10px;color:var(--muted);margin-left:auto}
+.nav-user b{color:var(--accent2)}
+
+/* SEARCH BAR */
+.search-bar{padding:10px 0;border-bottom:1px solid var(--border)}
+.search-bar input{background:var(--s2);border:1px solid var(--border);font-size:12px;padding:7px 12px}
+
+/* VIEWS */
+.view{padding:16px 0 80px}
+
+/* FEED TABS */
+.feed-tabs{display:flex;gap:4px;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:12px}
+.tab-btn{background:none;border:none;color:var(--muted);font-family:var(--fmono);font-size:11px;letter-spacing:.1em;padding:5px 12px;border-radius:var(--r);cursor:pointer;text-transform:uppercase;transition:all .15s}
+.tab-btn:hover{color:var(--text);background:var(--s2)}
+.tab-btn.active{color:var(--accent);background:rgba(226,255,0,.08)}
+
+/* COMPOSE */
+.compose-box{background:var(--s1);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:16px}
+.compose-box textarea{background:transparent;border:none;padding:0;font-size:15px;font-family:var(--fbody);min-height:60px;margin-bottom:10px;resize:none}
+.compose-box textarea:focus{outline:none}
+.compose-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.char-count{font-family:var(--fmono);font-size:11px;color:var(--muted)}
+.char-count.warn{color:var(--danger)}
+.compose-extras{display:flex;gap:6px;align-items:center}
+.poll-inputs{margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.poll-inputs input{font-size:12px;padding:6px 10px}
+
+/* POSTS */
+.post{border-bottom:1px solid var(--border);padding:14px 0;animation:postIn .25s ease}
+@keyframes postIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.post.reply-post{padding-left:14px;border-left:2px solid var(--border2);margin-left:8px}
+.post-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.post-avatar{width:36px;height:36px;border-radius:50%;background:var(--s3);border:1px solid var(--border);object-fit:cover;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--ftitle);font-size:15px;color:var(--muted);overflow:hidden}
+.post-meta{flex:1;min-width:0}
+.post-name{font-weight:600;font-size:14px;color:var(--text);cursor:pointer;display:inline}
+.post-name:hover{color:var(--accent2)}
+.post-verified{color:var(--accent);font-size:12px;margin-left:3px}
+.post-handle{font-family:var(--fmono);font-size:11px;color:var(--muted)}
+.post-time{font-family:var(--fmono);font-size:10px;color:var(--muted);flex-shrink:0}
+.post-body{font-size:15px;line-height:1.55;margin-bottom:10px;word-break:break-word;white-space:pre-wrap}
+.post-body a{color:var(--accent2)}
+.post-img{max-width:100%;border-radius:6px;margin-bottom:10px;border:1px solid var(--border);display:block}
+.repost-label{font-family:var(--fmono);font-size:10px;color:var(--muted);letter-spacing:.1em;margin-bottom:6px}
+.quoted-post{border:1px solid var(--border);border-radius:6px;padding:10px;margin-bottom:10px;background:var(--s2)}
+.quoted-post .post-body{margin-bottom:4px;font-size:13px}
+
+/* POLL */
+.poll-widget{margin-bottom:10px}
+.poll-option{display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;padding:8px 12px;border:1px solid var(--border);border-radius:var(--r);transition:all .15s;background:var(--s2);font-size:13px}
+.poll-option:hover{border-color:var(--accent2);color:var(--accent2)}
+.poll-option.voted{border-color:var(--accent);color:var(--accent);cursor:default}
+.poll-bar{height:3px;background:var(--border);border-radius:2px;flex:1;overflow:hidden}
+.poll-bar-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .4s ease}
+.poll-pct{font-family:var(--fmono);font-size:10px;color:var(--muted);min-width:30px;text-align:right}
+
+/* HASHTAGS */
+.hashtag{color:var(--accent2);cursor:pointer}
+.hashtag:hover{text-decoration:underline}
+
+/* POST ACTIONS */
+.post-actions{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
+.post-actions button{padding:4px 9px;font-size:10px}
+.like-btn.liked{color:var(--accent3);border-color:var(--accent3);background:rgba(255,107,157,.06)}
+.like-btn.liked:hover{color:#ff4488;border-color:#ff4488}
+
+/* REPLIES */
+.replies-section{margin-top:4px;padding-left:20px}
+.reply-compose{display:flex;gap:8px;margin:10px 0;align-items:flex-start}
+.reply-compose textarea{min-height:40px;font-size:13px;padding:7px 10px;resize:none}
+.reply-toggle{font-family:var(--fmono);font-size:10px;color:var(--muted);cursor:pointer;margin-top:4px;letter-spacing:.1em}
+.reply-toggle:hover{color:var(--accent2)}
+
+/* EXPLORE / SEARCH */
+.user-card{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--border)}
+.user-card-info{flex:1;min-width:0}
+.user-card-name{font-weight:600;font-size:15px;cursor:pointer}
+.user-card-name:hover{color:var(--accent2)}
+.user-card-handle{font-family:var(--fmono);font-size:11px;color:var(--muted)}
+.user-card-bio{font-size:13px;color:var(--sub);margin-top:2px}
+.user-card-actions{display:flex;gap:6px}
+
+/* PROFILE */
+.profile-banner{width:100%;height:110px;background:var(--s3);border-radius:8px;object-fit:cover;margin-bottom:-34px;display:block}
+.profile-banner-empty{width:100%;height:110px;background:linear-gradient(135deg,var(--s3) 0%,var(--s2) 100%);border-radius:8px;margin-bottom:-34px}
+.profile-avatar-wrap{padding:0 16px}
+.profile-avatar{width:64px;height:64px;border-radius:50%;border:3px solid var(--bg);background:var(--s3);object-fit:cover;display:flex;align-items:center;justify-content:center;font-family:var(--ftitle);font-size:26px;color:var(--sub);overflow:hidden}
+.profile-info{padding:10px 0 0}
+.profile-dname{font-size:20px;font-weight:700;display:inline}
+.profile-verified{color:var(--accent);font-size:16px;margin-left:4px}
+.profile-handle{font-family:var(--fmono);font-size:12px;color:var(--muted);margin-bottom:6px}
+.profile-bio{font-size:14px;color:var(--sub);margin-bottom:10px}
+.profile-stats{display:flex;gap:18px;font-family:var(--fmono);font-size:12px;color:var(--muted);margin-bottom:14px;flex-wrap:wrap}
+.profile-stats b{color:var(--text);font-size:14px}
+.profile-tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin:10px 0}
+.ptab{background:none;border:none;color:var(--muted);font-family:var(--fmono);font-size:10px;letter-spacing:.1em;padding:6px 12px;border-radius:var(--r) var(--r) 0 0;cursor:pointer;text-transform:uppercase;transition:all .15s;border-bottom:2px solid transparent}
+.ptab:hover{color:var(--text)}
+.ptab.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+/* NOTIFICATIONS */
+.notif-item{display:flex;gap:10px;padding:12px 0;border-bottom:1px solid var(--border);align-items:flex-start;animation:postIn .2s ease}
+.notif-item.unread{background:rgba(226,255,0,.02);border-left:2px solid var(--accent);padding-left:10px;margin-left:-10px}
+.notif-icon{font-size:16px;flex-shrink:0;margin-top:2px}
+.notif-text{font-size:14px;line-height:1.4}
+.notif-time{font-family:var(--fmono);font-size:10px;color:var(--muted);margin-top:2px}
+
+/* DMs */
+.dm-layout{display:grid;grid-template-columns:180px 1fr;gap:0;min-height:460px;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+@media(max-width:520px){.dm-layout{grid-template-columns:1fr}}
+.dm-sidebar{border-right:1px solid var(--border);background:var(--s1)}
+.dm-sidebar-head{padding:12px;border-bottom:1px solid var(--border);font-family:var(--fmono);font-size:10px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;display:flex;align-items:center;justify-content:space-between}
+.dm-conv-item{display:flex;align-items:center;gap:8px;padding:10px 12px;font-size:13px;color:var(--sub);cursor:pointer;border:none;background:none;text-align:left;width:100%;font-family:var(--fbody);transition:background .15s;border-bottom:1px solid var(--border)}
+.dm-conv-item:hover,.dm-conv-item.active{background:var(--s2);color:var(--text)}
+.dm-conv-dot{width:7px;height:7px;border-radius:50%;background:var(--border2);flex-shrink:0}
+.dm-conv-dot.online{background:var(--success)}
+.dm-chat{display:flex;flex-direction:column;height:460px;background:var(--bg)}
+.dm-chat-head{padding:12px 16px;border-bottom:1px solid var(--border);font-weight:600;font-size:14px;background:var(--s1);display:flex;align-items:center;gap:8px}
+.dm-msgs-wrap{flex:1;overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:8px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.dm-msg{max-width:75%;padding:8px 12px;border-radius:12px;font-size:14px;line-height:1.4;word-break:break-word}
+.dm-msg-out{align-self:flex-end;background:var(--accent);color:#000;border-radius:12px 12px 2px 12px}
+.dm-msg-in{align-self:flex-start;background:var(--s3);color:var(--text);border-radius:12px 12px 12px 2px}
+.dm-msg-time{font-family:var(--fmono);font-size:9px;opacity:.6;margin-top:3px;text-align:right}
+.dm-msg-in .dm-msg-time{text-align:left}
+.dm-seen{font-family:var(--fmono);font-size:9px;color:var(--muted);text-align:right;padding:0 16px 4px}
+.dm-compose{display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--border);background:var(--s1)}
+.dm-compose input{flex:1;padding:7px 12px;font-size:13px}
+.dm-empty{display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);font-family:var(--fmono);font-size:11px;letter-spacing:.15em}
+
+/* GROUP CHAT */
+.dm-group-badge{background:var(--accent2);color:#000;font-size:8px;padding:1px 5px;border-radius:3px;font-family:var(--fmono);letter-spacing:.05em;margin-left:4px}
+
+/* EDIT MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal-box{background:var(--s1);border:1px solid var(--border);border-radius:10px;padding:28px;width:100%;max-width:420px;max-height:90vh;overflow-y:auto}
+.modal-title{font-family:var(--ftitle);font-size:28px;letter-spacing:.06em;margin-bottom:18px}
+.modal-actions{display:flex;gap:8px;margin-top:18px}
+
+/* ADMIN PANEL */
+.admin-section{margin-bottom:24px}
+.admin-section h3{font-family:var(--ftitle);font-size:22px;letter-spacing:.05em;margin-bottom:10px;color:var(--warn)}
+.admin-item{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--border);border-radius:var(--r);margin-bottom:6px;background:var(--s2);font-size:13px}
+.admin-item .admin-actions{margin-left:auto;display:flex;gap:6px}
+.admin-badge{font-family:var(--fmono);font-size:9px;padding:2px 6px;border-radius:3px;text-transform:uppercase}
+.badge-verified{background:rgba(226,255,0,.15);color:var(--accent);border:1px solid var(--accent)}
+.badge-banned{background:rgba(255,77,77,.15);color:var(--danger);border:1px solid var(--danger)}
+
+/* REPORTS */
+.report-item{padding:10px;border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px;background:var(--s2);font-size:13px}
+.report-reason{font-family:var(--fmono);font-size:10px;color:var(--warn);margin-top:4px;letter-spacing:.1em}
+
+/* IMAGE UPLOAD */
+.img-preview{max-width:100%;border-radius:6px;border:1px solid var(--border);margin-top:8px;display:block}
+.upload-btn{cursor:pointer;font-family:var(--fmono);font-size:10px;color:var(--muted);padding:4px 8px;border:1px solid var(--border);border-radius:var(--r);transition:all .15s;letter-spacing:.1em}
+.upload-btn:hover{color:var(--accent2);border-color:var(--accent2)}
+
+/* STATUS TOAST */
+#status{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--s3);border:1px solid var(--border2);color:var(--text);font-family:var(--fmono);font-size:12px;padding:10px 20px;border-radius:20px;opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;z-index:999;white-space:nowrap}
+#status.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#status.err{border-color:var(--danger);color:var(--danger)}
+#status.ok{border-color:var(--success);color:var(--success)}
+
+.section-h{font-family:var(--ftitle);font-size:26px;letter-spacing:.05em;margin-bottom:14px}
+.empty-state{font-family:var(--fmono);font-size:11px;color:var(--muted);padding:28px 0;letter-spacing:.1em}
+.divider{border:none;border-top:1px solid var(--border);margin:8px 0}
+
+/* OFFLINE BANNER */
+#offline-bar{display:none;background:var(--danger);color:#fff;font-family:var(--fmono);font-size:11px;text-align:center;padding:5px;letter-spacing:.1em;position:fixed;top:0;left:0;right:0;z-index:9998}
+
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:10000;opacity:.4}
+</style>
+</head>
+<body>
+
+<div id="offline-bar">SIN CONEXIÓN — MODO OFFLINE</div>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="sp-title">
+    <div class="ln"><span>ORZI</span></div>
+    <div class="ln"><span>XAT</span></div>
+  </div>
+  <div class="sp-by">CREATED BY <b>PANTE</b></div>
+  <div class="sp-loader"></div>
+  <div class="sp-status" id="sp-status">conectando...</div>
+</div>
+
+<!-- SETUP -->
+<div id="setup" class="hidden">
+  <div class="setup-box">
+    <div class="setup-logo">ORZI <span>XAT</span></div>
+    <div class="setup-tagline">CREATED BY PANTE</div>
+    <div class="setup-row">
+      <div class="field"><label>usuario</label><input id="s-user" type="text" placeholder="sin espacios" autocomplete="off"></div>
+      <div class="field"><label>nombre</label><input id="s-name" type="text" placeholder="como te llaman" autocomplete="off"></div>
+    </div>
+    <button class="primary setup-enter" onclick="initApp()">ENTRAR →</button>
+    <div class="setup-err" id="setup-err"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" class="hidden">
+  <div id="nav">
+    <div class="nav-logo">ORZI <span>XAT</span></div>
+    <div class="nav-links">
+      <button class="nav-btn" onclick="showView('feed')" id="nb-feed">feed</button>
+      <button class="nav-btn" onclick="showView('explore')" id="nb-explore">explorar</button>
+      <button class="nav-btn" onclick="showView('notifs')" id="nb-notifs">notifs<span id="notif-badge" class="nav-badge hidden"></span></button>
+      <button class="nav-btn" onclick="showView('dms')" id="nb-dms">mensajes<span id="dm-badge" class="nav-badge hidden"></span></button>
+      <button class="nav-btn" onclick="showView('profile',currentUser?.id)" id="nb-profile">perfil</button>
+      <button class="nav-btn" id="nb-admin" onclick="showView('admin')" style="display:none">⚡admin</button>
+      <button class="nav-btn" onclick="logout()">salir</button>
+    </div>
+    <div class="nav-user">@<b id="nav-user"></b></div>
+  </div>
+
+  <!-- FEED -->
+  <div id="view-feed" class="view hidden">
+    <div class="compose-box" id="main-compose">
+      <textarea id="post-inp" maxlength="280" placeholder="¿qué está pasando? usa #hashtags"></textarea>
+      <div id="poll-section" class="hidden">
+        <div class="poll-inputs">
+          <input id="poll-a" type="text" placeholder="opción A" maxlength="60">
+          <input id="poll-b" type="text" placeholder="opción B" maxlength="60">
+        </div>
+      </div>
+      <div id="img-preview-wrap" class="hidden"><img id="img-preview" class="img-preview"></div>
+      <input type="file" id="img-input" accept="image/*" style="display:none" onchange="previewImg(this)">
+      <div class="compose-footer">
+        <div class="compose-extras">
+          <span class="char-count" id="cc">280</span>
+          <label class="upload-btn" for="img-input">📷 img</label>
+          <button onclick="togglePoll()" id="poll-toggle">📊 encuesta</button>
+        </div>
+        <button class="primary" onclick="publishPost()">publicar</button>
+      </div>
+    </div>
+    <div class="feed-tabs">
+      <button class="tab-btn active" id="tab-global" onclick="switchFeedTab('global')">global</button>
+      <button class="tab-btn" id="tab-following" onclick="switchFeedTab('following')">siguiendo</button>
+      <button class="tab-btn" id="tab-hashtag" onclick="switchFeedTab('hashtag')" id="tab-hashtag" style="display:none">#<span id="active-hashtag"></span></button>
+    </div>
+    <div id="feed-posts"><p class="empty-state">cargando...</p></div>
+  </div>
+
+  <!-- EXPLORE + SEARCH -->
+  <div id="view-explore" class="view hidden">
+    <div class="section-h">Explorar</div>
+    <div class="search-bar"><input id="search-inp" type="text" placeholder="buscar usuarios o posts..." oninput="runSearch(this.value)"></div>
+    <div id="search-results" class="hidden" style="margin-top:10px"></div>
+    <div id="explore-list"><p class="empty-state">cargando...</p></div>
+  </div>
+
+  <!-- NOTIFS -->
+  <div id="view-notifs" class="view hidden">
+    <div class="section-h">Notificaciones</div>
+    <button onclick="markNotifsRead()" style="margin-bottom:12px;font-size:10px">marcar todas como leídas</button>
+    <div id="notifs-list"><p class="empty-state">cargando...</p></div>
+  </div>
+
+  <!-- PROFILE -->
+  <div id="view-profile" class="view hidden">
+    <div id="profile-content"><p class="empty-state">cargando...</p></div>
+  </div>
+
+  <!-- DMs -->
+  <div id="view-dms" class="view hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div class="section-h" style="margin:0">Mensajes</div>
+      <button onclick="openNewGroupModal()">+ grupo</button>
+    </div>
+    <div class="dm-layout">
+      <div class="dm-sidebar">
+        <div class="dm-sidebar-head">
+          Chats
+          <span id="dm-online-count" style="color:var(--success)"></span>
+        </div>
+        <div id="dm-convs"></div>
+      </div>
+      <div id="dm-chat-panel"><div class="dm-empty">← selecciona un chat</div></div>
+    </div>
+  </div>
+
+  <!-- ADMIN -->
+  <div id="view-admin" class="view hidden">
+    <div class="section-h" style="color:var(--warn)">⚡ Panel Admin</div>
+    <div class="admin-section">
+      <h3>Usuarios</h3>
+      <div id="admin-users">cargando...</div>
+    </div>
+    <div class="admin-section">
+      <h3>Reportes</h3>
+      <div id="admin-reports">cargando...</div>
+    </div>
+    <div class="admin-section">
+      <h3>Posts Recientes</h3>
+      <div id="admin-posts">cargando...</div>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT PROFILE MODAL -->
+<div id="edit-modal" class="modal-overlay hidden">
+  <div class="modal-box">
+    <div class="modal-title">Editar Perfil</div>
+    <div class="field"><label>nombre</label><input id="e-display" type="text"></div>
+    <div class="field"><label>bio</label><textarea id="e-bio" rows="2"></textarea></div>
+    <div class="field"><label>url avatar</label><input id="e-avatar" type="text"></div>
+    <div class="field"><label>url banner</label><input id="e-banner" type="text"></div>
+    <div class="modal-actions">
+      <button class="primary" onclick="saveProfile()">guardar</button>
+      <button onclick="closeEdit()">cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- REPOST MODAL -->
+<div id="repost-modal" class="modal-overlay hidden">
+  <div class="modal-box">
+    <div class="modal-title">Repostear</div>
+    <div id="repost-preview" style="margin-bottom:14px"></div>
+    <div class="field"><label>comentario (opcional)</label><textarea id="repost-comment" rows="2" placeholder="añade tu opinión..."></textarea></div>
+    <div class="modal-actions">
+      <button class="primary" onclick="confirmRepost()">repostear</button>
+      <button onclick="closeRepost()">cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- NEW GROUP MODAL -->
+<div id="group-modal" class="modal-overlay hidden">
+  <div class="modal-box">
+    <div class="modal-title">Nuevo Grupo</div>
+    <div class="field"><label>nombre del grupo</label><input id="group-name" type="text" placeholder="nombre..."></div>
+    <div class="field"><label>buscar usuarios</label><input id="group-search" type="text" placeholder="escribe un usuario..." oninput="searchGroupUsers(this.value)"></div>
+    <div id="group-user-results" style="margin-bottom:10px"></div>
+    <div id="group-selected" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px"></div>
+    <div class="modal-actions">
+      <button class="primary" onclick="createGroup()">crear grupo</button>
+      <button onclick="closeGroupModal()">cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- REPORT MODAL -->
+<div id="report-modal" class="modal-overlay hidden">
+  <div class="modal-box">
+    <div class="modal-title">Reportar</div>
+    <div class="field">
+      <label>motivo</label>
+      <select id="report-reason" style="background:var(--s2);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:var(--r);width:100%;font-family:var(--fmono);font-size:12px">
+        <option value="spam">spam</option>
+        <option value="acoso">acoso</option>
+        <option value="contenido inapropiado">contenido inapropiado</option>
+        <option value="otro">otro</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="primary" onclick="submitReport()">reportar</button>
+      <button onclick="closeReport()">cancelar</button>
+    </div>
+  </div>
+</div>
+
+<div id="status"></div>
+
+<script>
+// ── CONFIG ────────────────────────────────────────
+const SB_URL = 'https://tjhccssrfoporrrzhgyx.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRqaGNjc3NyZm9wb3JycnpoZ3l4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMjc4NzYsImV4cCI6MjA4OTcwMzg3Nn0.vH_W-O4c3xLlyDoK6YZuA6KYLtYS2-h6CDGxkYRE8GM';
+const ADMIN_USER = 'pante'; // username del admin
+const BOT_ID = 'u_orzixat_bot';
+
+let sb = null, currentUser = null, activeDmId = null, activeDmGroup = false;
+let feedTab = 'global', activeHashtag = '', imgUploadData = null;
+let repostTarget = null, reportTarget = null;
+let groupSelectedUsers = [];
+let dmPollingInterval = null, notifPollingInterval = null;
+let lastMsgCount = 0, unreadNotifs = 0;
+let offlineCache = { posts: [], profile: null };
+
+// ── SPLASH ────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  const spStatus = document.getElementById('sp-status');
+  window.addEventListener('online',  () => document.getElementById('offline-bar').style.display='none');
+  window.addEventListener('offline', () => document.getElementById('offline-bar').style.display='block');
+  if (!navigator.onLine) document.getElementById('offline-bar').style.display='block';
+
+  try { sb = supabase.createClient(SB_URL, SB_KEY); spStatus.textContent='servidor listo ✓'; }
+  catch(e) { spStatus.textContent='error de conexión'; }
+
+  const savedUser = localStorage.getItem('ox_user');
+  setTimeout(() => { spStatus.textContent = savedUser ? 'restaurando sesión...' : 'listo'; }, 1200);
+  setTimeout(() => {
+    document.getElementById('splash').classList.add('out');
+    setTimeout(() => {
+      document.getElementById('splash').style.display='none';
+      if (savedUser) { currentUser=JSON.parse(savedUser); bootApp(); }
+      else { const s=document.getElementById('setup'); s.classList.remove('hidden'); setTimeout(()=>s.classList.add('visible'),30); }
+    }, 700);
+  }, 2500);
+});
+
+// ── INIT ──────────────────────────────────────────
+function initApp() {
+  const uname = document.getElementById('s-user').value.trim().toLowerCase().replace(/[^a-z0-9_]/g,'');
+  const dname = document.getElementById('s-name').value.trim();
+  const err   = document.getElementById('setup-err');
+  if (!uname||!dname) { err.textContent='— rellena usuario y nombre'; return; }
+  err.textContent='';
+  loginOrRegister(uname, dname);
+}
+
+async function loginOrRegister(username, display_name) {
+  const err = document.getElementById('setup-err');
+  const id = 'u_'+username;
+  const {data:ex} = await sb.from('profiles').select('*').eq('id',id).single();
+  if (ex) {
+    if (ex.banned) { err.textContent='— cuenta suspendida'; return; }
+    currentUser=ex; localStorage.setItem('ox_user',JSON.stringify(ex)); bootApp(); return;
+  }
+  const {data,error} = await sb.from('profiles').insert({id,username,display_name,bio:'',avatar_url:'',banner_url:'',verified:false,banned:false}).select().single();
+  if (error) { err.textContent='— '+error.message; return; }
+  currentUser=data;
+  localStorage.setItem('ox_user',JSON.stringify(data));
+  bootApp();
+  // Bot welcome DM
+  setTimeout(() => sendBotDM(id), 1500);
+}
+
+async function sendBotDM(userId) {
+  await sb.from('profiles').upsert({id:BOT_ID,username:'orzixat_bot',display_name:'ORZI BOT',bio:'Bot oficial de ORZI XAT 🤖',avatar_url:'',banner_url:'',verified:true,banned:false},{onConflict:'id'});
+  await sb.from('messages').insert({sender_id:BOT_ID,receiver_id:userId,content:'👋 ¡Bienvenido/a a ORZI XAT! Soy el bot oficial. Te daré like a tus posts automáticamente. Si tienes problemas escríbele a @pante. ¡Disfruta!',is_group:false,group_id:null,seen:false});
+}
+
+// ── BOT ENGINE ────────────────────────────────────
+// Tracks which posts the bot has already liked/replied to
+const botLiked   = new Set(JSON.parse(localStorage.getItem('ox_bot_liked')  ||'[]'));
+const botReplied = new Set(JSON.parse(localStorage.getItem('ox_bot_replied')||'[]'));
+
+const BOT_REPLIES = [
+  '🔥 buen post',
+  '💯 totalmente de acuerdo',
+  '👀 interesante',
+  'facts 🤝',
+  'jaja exacto',
+  '¡buenísimo!',
+  'eso eso 👏',
+  'me parece bien',
+  '😂😂',
+  'qué razón tienes',
+  '🚀',
+  'top post fr',
+];
+
+async function botTick() {
+  if (!currentUser || !sb) return;
+
+  // Ensure bot profile exists silently
+  await sb.from('profiles').upsert(
+    {id:BOT_ID,username:'orzixat_bot',display_name:'ORZI BOT',bio:'Bot oficial 🤖',avatar_url:'',banner_url:'',verified:true,banned:false},
+    {onConflict:'id'}
+  );
+
+  // Ensure bot follows the current user
+  const {data:alreadyFollows} = await sb.from('follows')
+    .select('id').eq('follower_id',BOT_ID).eq('following_id',currentUser.id).maybeSingle();
+  if (!alreadyFollows) {
+    await sb.from('follows').insert({follower_id:BOT_ID,following_id:currentUser.id});
+    await createNotif(currentUser.id,'follow','ORZI BOT te empezó a seguir 🤖',null);
+  }
+
+  // Fetch current user's recent posts not yet liked by bot
+  const {data:posts} = await sb.from('posts')
+    .select('id,likes_count,content,author_id')
+    .eq('author_id', currentUser.id)
+    .order('created_at',{ascending:false})
+    .limit(10);
+
+  if (!posts?.length) return;
+
+  for (const post of posts) {
+    if (botLiked.has(post.id)) continue;
+
+    // Random delay 3–12s per post to feel human
+    const delay = 3000 + Math.random() * 9000;
+    setTimeout(async () => {
+      // Like the post
+      const {error} = await sb.from('likes').insert({post_id:post.id, user_id:BOT_ID});
+      if (!error) {
+        await sb.from('posts').update({likes_count:(post.likes_count||0)+1}).eq('id',post.id);
+        await createNotif(currentUser.id,'like','ORZI BOT ♥ dio like a tu post 🤖', post.id);
+        botLiked.add(post.id);
+        localStorage.setItem('ox_bot_liked', JSON.stringify([...botLiked]));
+        // Refresh feed visually if visible
+        const feedVisible = !document.getElementById('view-feed').classList.contains('hidden');
+        if (feedVisible) loadFeed();
+      }
+
+      // ~40% chance of also replying (once per post)
+      if (!botReplied.has(post.id) && Math.random() < 0.4) {
+        const replyDelay = 2000 + Math.random() * 5000;
+        setTimeout(async () => {
+          const text = BOT_REPLIES[Math.floor(Math.random()*BOT_REPLIES.length)];
+          await sb.from('replies').insert({post_id:post.id, author_id:BOT_ID, content:text});
+          const {data:p} = await sb.from('posts').select('reply_count').eq('id',post.id).single();
+          if (p) await sb.from('posts').update({reply_count:(p.reply_count||0)+1}).eq('id',post.id);
+          await createNotif(currentUser.id,'reply',`ORZI BOT respondió a tu post: "${text}" 🤖`, post.id);
+          botReplied.add(post.id);
+          localStorage.setItem('ox_bot_replied', JSON.stringify([...botReplied]));
+          if (feedVisible) loadFeed();
+        }, replyDelay);
+      }
+    }, delay);
+  }
+}
+
+function bootApp() {
+  document.getElementById('setup').classList.add('hidden');
+  const app = document.getElementById('app');
+  app.classList.remove('hidden');
+  setTimeout(()=>app.classList.add('visible'),30);
+  document.getElementById('nav-user').textContent = currentUser.username;
+  if (currentUser.username === ADMIN_USER) document.getElementById('nb-admin').style.display='';
+  document.getElementById('post-inp').addEventListener('input', function(){
+    const left=280-this.value.length;
+    const el=document.getElementById('cc');
+    el.textContent=left; el.className='char-count'+(left<30?' warn':'');
+  });
+  showView('feed');
+  startPolling();
+}
+
+function startPolling() {
+  checkDMs(); checkNotifs();
+  dmPollingInterval    = setInterval(()=>{ checkDMs(); if(activeDmId) refreshActiveChat(); }, 4000);
+  notifPollingInterval = setInterval(checkNotifs, 12000);
+  // Bot runs every 20s, first tick after 5s
+  setTimeout(()=>{ botTick(); setInterval(botTick, 20000); }, 5000);
+}
+
+function logout() { localStorage.clear(); location.reload(); }
+
+// ── VIEWS ─────────────────────────────────────────
+function showView(name, param) {
+  ['feed','explore','profile','dms','notifs','admin'].forEach(v=>{
+    document.getElementById('view-'+v).classList.add('hidden');
+    const nb=document.getElementById('nb-'+v); if(nb) nb.classList.remove('active');
+  });
+  document.getElementById('view-'+name).classList.remove('hidden');
+  const nb=document.getElementById('nb-'+name); if(nb) nb.classList.add('active');
+  if (name==='feed')    loadFeed();
+  if (name==='explore') loadExplore();
+  if (name==='profile') loadProfile(param||currentUser.id);
+  if (name==='dms')     loadDMs();
+  if (name==='notifs')  loadNotifs();
+  if (name==='admin')   loadAdmin();
+}
+
+// ── FEED / TABS ───────────────────────────────────
+function switchFeedTab(tab, hashtag='') {
+  feedTab=tab; activeHashtag=hashtag;
+  ['global','following','hashtag'].forEach(t=>{
+    const el=document.getElementById('tab-'+t); if(el) el.classList.remove('active');
+  });
+  document.getElementById('tab-'+tab)?.classList.add('active');
+  if (hashtag) { document.getElementById('active-hashtag').textContent=hashtag; document.getElementById('tab-hashtag').style.display=''; }
+  loadFeed();
+}
+
+async function loadFeed() {
+  const c = document.getElementById('feed-posts');
+  // Offline fallback
+  if (!navigator.onLine) {
+    const cached = JSON.parse(localStorage.getItem('ox_cached_posts')||'[]');
+    if (cached.length) { c.innerHTML=cached.map(p=>postHTML(p,p.profiles,false,false)).join(''); return; }
+    c.innerHTML='<p class="empty-state">sin conexión</p>'; return;
+  }
+  c.innerHTML='<p class="empty-state">cargando...</p>';
+  let query = sb.from('posts').select('*, profiles!posts_author_id_fkey(*)').order('created_at',{ascending:false}).limit(60);
+
+  if (feedTab==='following') {
+    const {data:follows} = await sb.from('follows').select('following_id').eq('follower_id',currentUser.id);
+    const ids = follows?.map(f=>f.following_id)||[];
+    if (!ids.length) { c.innerHTML='<p class="empty-state">no sigues a nadie aún — explora usuarios</p>'; return; }
+    query = query.in('author_id', ids);
+  } else if (feedTab==='hashtag' && activeHashtag) {
+    query = query.ilike('content', `%#${activeHashtag}%`);
+  }
+
+  const {data:posts} = await query;
+  if (!posts?.length) { c.innerHTML='<p class="empty-state">sin posts aún</p>'; return; }
+  localStorage.setItem('ox_cached_posts', JSON.stringify(posts.slice(0,20)));
+
+  let liked=new Set(), voted=new Map();
+  const {data:ml} = await sb.from('likes').select('post_id').eq('user_id',currentUser.id).in('post_id',posts.map(x=>x.id));
+  if (ml) ml.forEach(l=>liked.add(l.post_id));
+  const {data:pv} = await sb.from('poll_votes').select('post_id,option').eq('user_id',currentUser.id).in('post_id',posts.map(x=>x.id));
+  if (pv) pv.forEach(v=>voted.set(v.post_id,v.option));
+  const followed = await getFollowingSet();
+
+  c.innerHTML = posts.map(p=>postHTML(p,p.profiles,liked.has(p.id),followed.has(p.author_id),voted.get(p.id))).join('');
+}
+
+async function getFollowingSet() {
+  const {data} = await sb.from('follows').select('following_id').eq('follower_id',currentUser.id);
+  return new Set(data?.map(f=>f.following_id)||[]);
+}
+
+function renderHashtags(text) {
+  return esc(text).replace(/#([a-zA-Z0-9_áéíóúñÁÉÍÓÚÑ]+)/g,(m,tag)=>`<span class="hashtag" onclick="switchFeedTab('hashtag','${tag}');showView('feed')">#${tag}</span>`);
+}
+
+function postHTML(post, author, liked, isFollowing, votedOption) {
+  if (!author) return '';
+  const isOwn = post.author_id===currentUser.id;
+  const initial = (author.display_name||'?')[0].toUpperCase();
+  const banned = author.banned;
+  const avatarEl = author.avatar_url
+    ? `<img src="${esc(author.avatar_url)}" class="post-avatar" style="display:block">`
+    : `<div class="post-avatar">${initial}</div>`;
+  const verifiedBadge = author.verified ? `<span class="post-verified" title="verificado">✓</span>`:'';
+  const isBot = author.id===BOT_ID;
+
+  let bodyHTML = '';
+  if (post.repost_of) {
+    const rq = post.repost_data;
+    bodyHTML += `<div class="repost-label">↻ REPOST</div>`;
+    if (post.content) bodyHTML += `<div class="post-body">${renderHashtags(post.content)}</div>`;
+    if (rq) bodyHTML += `<div class="quoted-post"><b>${esc(rq.display_name||'?')}</b> <span style="font-family:var(--fmono);font-size:10px;color:var(--muted)">@${esc(rq.username||'?')}</span><div class="post-body" style="margin-top:4px">${renderHashtags(rq.content||'')}</div></div>`;
+  } else {
+    bodyHTML = `<div class="post-body">${renderHashtags(post.content||'')}</div>`;
+  }
+
+  if (post.image_url) bodyHTML += `<img src="${esc(post.image_url)}" class="post-img" loading="lazy">`;
+
+  if (post.poll_a && post.poll_b) {
+    const totalV = (post.poll_votes_a||0)+(post.poll_votes_b||0);
+    const pctA = totalV ? Math.round((post.poll_votes_a||0)/totalV*100):50;
+    const pctB = totalV ? Math.round((post.poll_votes_b||0)/totalV*100):50;
+    const votedA = votedOption==='a', votedB = votedOption==='b';
+    bodyHTML += `<div class="poll-widget">
+      <div class="poll-option${votedA?' voted':''}" onclick="votePoll('${post.id}','a',${!!votedOption})">
+        <span>${esc(post.poll_a)}</span>
+        ${votedOption?`<div class="poll-bar"><div class="poll-bar-fill" style="width:${pctA}%"></div></div><span class="poll-pct">${pctA}%</span>`:''}
+      </div>
+      <div class="poll-option${votedB?' voted':''}" onclick="votePoll('${post.id}','b',${!!votedOption})">
+        <span>${esc(post.poll_b)}</span>
+        ${votedOption?`<div class="poll-bar"><div class="poll-bar-fill" style="width:${pctB}%"></div></div><span class="poll-pct">${pctB}%</span>`:''}
+      </div>
+      <div style="font-family:var(--fmono);font-size:10px;color:var(--muted);margin-top:4px">${totalV} votos</div>
+    </div>`;
+  }
+
+  const followBtn = (!isOwn && !isBot) ? `<button onclick="toggleFollow('${author.id}',${isFollowing})">${isFollowing?'✓ sig':'+ seguir'}</button>`:''
+  const dmBtn     = (!isOwn && !isBot) ? `<button onclick="startDM('${author.id}')">dm</button>`:''
+  const reportBtn = !isOwn ? `<button class="danger" onclick="openReport('post','${post.id}')">⚑</button>`:''
+  const deleteBtn = (isOwn || currentUser.username===ADMIN_USER) ? `<button class="danger" onclick="deletePost('${post.id}')">✕</button>`:''
+  const replyCount = post.reply_count||0;
+
+  return `
+  <div class="post" id="post-${post.id}">
+    ${banned?'<div style="font-family:var(--fmono);font-size:10px;color:var(--danger);margin-bottom:6px">USUARIO SUSPENDIDO</div>':''}
+    <div class="post-header">
+      ${avatarEl}
+      <div class="post-meta">
+        <span class="post-name" onclick="showView('profile','${author.id}')">${esc(author.display_name||'?')}</span>${verifiedBadge}
+        ${isBot?'<span style="background:var(--accent2);color:#000;font-size:8px;padding:1px 5px;border-radius:3px;font-family:var(--fmono);margin-left:4px">BOT</span>':''}
+        <div class="post-handle">@${esc(author.username||'?')}</div>
+      </div>
+      <span class="post-time">${timeAgo(post.created_at)}</span>
+    </div>
+    ${bodyHTML}
+    <div class="post-actions">
+      <button class="like-btn${liked?' liked':''}" onclick="toggleLike('${post.id}',${liked},${isOwn})">
+        ${liked?'♥':'♡'} <span id="lc-${post.id}">${post.likes_count||0}</span>
+      </button>
+      <button onclick="toggleReplies('${post.id}')">💬 ${replyCount}</button>
+      <button onclick="openRepost('${post.id}')">↻</button>
+      ${followBtn}${dmBtn}${reportBtn}${deleteBtn}
+    </div>
+    <div id="replies-${post.id}" class="hidden">
+      <div class="replies-section" id="replies-list-${post.id}"></div>
+      <div class="reply-compose" style="padding-left:20px">
+        <textarea id="reply-inp-${post.id}" rows="1" placeholder="responder..." style="min-height:36px"></textarea>
+        <button onclick="submitReply('${post.id}')" style="flex-shrink:0;align-self:flex-end">→</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── LIKES (fixed) ─────────────────────────────────
+async function toggleLike(postId, wasLiked, isOwn) {
+  const countEl = document.getElementById('lc-'+postId);
+  const btn = document.querySelector(`#post-${postId} .like-btn`);
+  if (!countEl||!btn) return;
+  const current = parseInt(countEl.textContent)||0;
+
+  // Optimistic UI
+  if (wasLiked) {
+    countEl.textContent = Math.max(0,current-1);
+    btn.classList.remove('liked'); btn.innerHTML=`♡ <span id="lc-${postId}">${Math.max(0,current-1)}</span>`;
+    await sb.from('likes').delete().eq('post_id',postId).eq('user_id',currentUser.id);
+    await sb.from('posts').update({likes_count:Math.max(0,current-1)}).eq('id',postId);
+  } else {
+    countEl.textContent = current+1;
+    btn.classList.add('liked'); btn.innerHTML=`♥ <span id="lc-${postId}">${current+1}</span>`;
+    const {error} = await sb.from('likes').insert({post_id:postId,user_id:currentUser.id});
+    if (!error) {
+      await sb.from('posts').update({likes_count:current+1}).eq('id',postId);
+      // Notification
+      const {data:p} = await sb.from('posts').select('author_id').eq('id',postId).single();
+      if (p && p.author_id !== currentUser.id) {
+        await createNotif(p.author_id,'like',`@${currentUser.username} dio like a tu post`,postId);
+      }
+    } else {
+      // Already liked — revert
+      btn.classList.remove('liked'); btn.innerHTML=`♡ <span id="lc-${postId}">${current}</span>`;
+    }
+  }
+}
+
+async function votePoll(postId, option, alreadyVoted) {
+  if (alreadyVoted) return;
+  await sb.from('poll_votes').insert({post_id:postId,user_id:currentUser.id,option});
+  const field = option==='a'?'poll_votes_a':'poll_votes_b';
+  const {data:p} = await sb.from('posts').select(field).eq('id',postId).single();
+  if (p) await sb.from('posts').update({[field]:(p[field]||0)+1}).eq('id',postId);
+  loadFeed();
+}
+
+// ── PUBLISH ───────────────────────────────────────
+async function publishPost() {
+  const inp = document.getElementById('post-inp');
+  const content = inp.value.trim();
+  const pollA = document.getElementById('poll-a').value.trim();
+  const pollB = document.getElementById('poll-b').value.trim();
+  if (!content && !imgUploadData) return;
+  const btn = document.querySelector('#main-compose .primary');
+  btn.textContent='...'; btn.disabled=true;
+
+  let image_url = null;
+  if (imgUploadData) {
+    const fname = `${currentUser.id}_${Date.now()}.jpg`;
+    const {data:up, error:ue} = await sb.storage.from('post-images').upload(fname, imgUploadData, {contentType:'image/jpeg',upsert:true});
+    if (!ue) { const {data:url}=sb.storage.from('post-images').getPublicUrl(fname); image_url=url.publicUrl; }
+  }
+
+  const insertObj = {author_id:currentUser.id,content,likes_count:0,reply_count:0};
+  if (image_url) insertObj.image_url=image_url;
+  if (pollA&&pollB) { insertObj.poll_a=pollA; insertObj.poll_b=pollB; insertObj.poll_votes_a=0; insertObj.poll_votes_b=0; }
+
+  const {error} = await sb.from('posts').insert(insertObj);
+  btn.textContent='publicar'; btn.disabled=false;
+  if (error) { setStatus('error: '+error.message,'err'); return; }
+  inp.value=''; document.getElementById('cc').textContent='280';
+  imgUploadData=null; document.getElementById('img-preview-wrap').classList.add('hidden');
+  document.getElementById('poll-section').classList.add('hidden');
+  document.getElementById('poll-a').value=''; document.getElementById('poll-b').value='';
+  document.getElementById('poll-toggle').classList.remove('active-btn');
+  loadFeed();
+}
+
+function togglePoll() {
+  const s=document.getElementById('poll-section'); s.classList.toggle('hidden');
+  document.getElementById('poll-toggle').classList.toggle('active-btn');
+}
+
+function previewImg(input) {
+  const file=input.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{ document.getElementById('img-preview').src=e.target.result; document.getElementById('img-preview-wrap').classList.remove('hidden'); imgUploadData=file; };
+  reader.readAsDataURL(file);
+}
+
+// ── REPLIES ───────────────────────────────────────
+async function toggleReplies(postId) {
+  const wrap = document.getElementById('replies-'+postId);
+  const isHidden = wrap.classList.contains('hidden');
+  wrap.classList.toggle('hidden');
+  if (isHidden) loadReplies(postId);
+}
+
+async function loadReplies(postId) {
+  const c = document.getElementById('replies-list-'+postId); if(!c) return;
+  const {data:replies} = await sb.from('replies').select('*, profiles!replies_author_id_fkey(*)').eq('post_id',postId).order('created_at',{ascending:true}).limit(30);
+  if (!replies?.length) { c.innerHTML='<p class="empty-state" style="font-size:11px;padding:8px 0">sin respuestas</p>'; return; }
+  c.innerHTML = replies.map(r=>{
+    const isOwn=r.author_id===currentUser.id;
+    const initial=(r.profiles?.display_name||'?')[0].toUpperCase();
+    const av=r.profiles?.avatar_url?`<img src="${esc(r.profiles.avatar_url)}" class="post-avatar" style="display:block;width:28px;height:28px">`:`<div class="post-avatar" style="width:28px;height:28px;font-size:12px">${initial}</div>`;
+    return `<div class="post reply-post">
+      <div class="post-header">
+        ${av}
+        <div class="post-meta"><span class="post-name" onclick="showView('profile','${r.author_id}')">${esc(r.profiles?.display_name||'?')}</span><div class="post-handle">@${esc(r.profiles?.username||'?')}</div></div>
+        <span class="post-time">${timeAgo(r.created_at)}</span>
+      </div>
+      <div class="post-body">${esc(r.content)}</div>
+      ${isOwn?`<button style="font-size:10px;padding:3px 8px" onclick="deleteReply('${r.id}','${postId}')">✕</button>`:''}
+    </div>`;
+  }).join('');
+}
+
+async function submitReply(postId) {
+  const inp=document.getElementById('reply-inp-'+postId);
+  const content=inp.value.trim(); if(!content) return;
+  await sb.from('replies').insert({post_id:postId,author_id:currentUser.id,content});
+  const {data:p}=await sb.from('posts').select('author_id,reply_count').eq('id',postId).single();
+  if (p) {
+    await sb.from('posts').update({reply_count:(p.reply_count||0)+1}).eq('id',postId);
+    if (p.author_id!==currentUser.id) await createNotif(p.author_id,'reply',`@${currentUser.username} respondió a tu post`,postId);
+  }
+  inp.value='';
+  loadReplies(postId);
+}
+
+async function deleteReply(replyId, postId) {
+  await sb.from('replies').delete().eq('id',replyId);
+  const {data:p}=await sb.from('posts').select('reply_count').eq('id',postId).single();
+  if (p) await sb.from('posts').update({reply_count:Math.max(0,(p.reply_count||1)-1)}).eq('id',postId);
+  loadReplies(postId);
+}
+
+// ── REPOSTS ───────────────────────────────────────
+async function openRepost(postId) {
+  const {data:p}=await sb.from('posts').select('*, profiles!posts_author_id_fkey(*)').eq('id',postId).single();
+  if (!p) return;
+  repostTarget=p;
+  document.getElementById('repost-preview').innerHTML=`<div class="quoted-post"><b>${esc(p.profiles?.display_name)}</b> <span style="font-family:var(--fmono);font-size:10px;color:var(--muted)">@${esc(p.profiles?.username)}</span><div class="post-body" style="margin-top:4px;font-size:13px">${esc(p.content)}</div></div>`;
+  document.getElementById('repost-comment').value='';
+  document.getElementById('repost-modal').classList.remove('hidden');
+}
+function closeRepost() { document.getElementById('repost-modal').classList.add('hidden'); repostTarget=null; }
+
+async function confirmRepost() {
+  if (!repostTarget) return;
+  const comment=document.getElementById('repost-comment').value.trim();
+  const insertObj={author_id:currentUser.id,content:comment,likes_count:0,reply_count:0,repost_of:repostTarget.id,repost_data:{display_name:repostTarget.profiles?.display_name,username:repostTarget.profiles?.username,content:repostTarget.content}};
+  await sb.from('posts').insert(insertObj);
+  if (repostTarget.author_id!==currentUser.id) await createNotif(repostTarget.author_id,'repost',`@${currentUser.username} reposteó tu post`,repostTarget.id);
+  closeRepost(); loadFeed(); setStatus('reposteado ✓','ok');
+}
+
+async function deletePost(postId) {
+  await sb.from('posts').delete().eq('id',postId);
+  loadFeed();
+}
+
+// ── FOLLOWS ───────────────────────────────────────
+async function toggleFollow(userId, isFollowing) {
+  if (isFollowing) {
+    await sb.from('follows').delete().eq('follower_id',currentUser.id).eq('following_id',userId);
+  } else {
+    await sb.from('follows').insert({follower_id:currentUser.id,following_id:userId});
+    await createNotif(userId,'follow',`@${currentUser.username} te empezó a seguir`,null);
+  }
+  loadFeed();
+}
+
+// ── EXPLORE / SEARCH ──────────────────────────────
+async function loadExplore() {
+  const c=document.getElementById('explore-list');
+  c.innerHTML='<p class="empty-state">cargando...</p>';
+  const {data:users}=await sb.from('profiles').select('*').neq('id',currentUser.id).neq('id',BOT_ID).eq('banned',false).limit(40);
+  if (!users?.length) { c.innerHTML='<p class="empty-state">sin usuarios aún</p>'; return; }
+  const followed=await getFollowingSet();
+  c.innerHTML=users.map(u=>userCardHTML(u,followed.has(u.id))).join('');
+}
+
+async function runSearch(query) {
+  const wrap=document.getElementById('search-results');
+  if (!query.trim()) { wrap.classList.add('hidden'); return; }
+  wrap.classList.remove('hidden');
+  wrap.innerHTML='<p class="empty-state" style="padding:10px 0">buscando...</p>';
+  const q=query.toLowerCase();
+  const {data:users}=await sb.from('profiles').select('*').or(`username.ilike.%${q}%,display_name.ilike.%${q}%`).neq('id',currentUser.id).limit(10);
+  const {data:posts}=await sb.from('posts').select('*, profiles!posts_author_id_fkey(*)').ilike('content',`%${q}%`).order('created_at',{ascending:false}).limit(10);
+  const followed=await getFollowingSet();
+  let html='';
+  if (users?.length) { html+=`<div style="font-family:var(--fmono);font-size:10px;color:var(--muted);letter-spacing:.2em;margin-bottom:8px">USUARIOS</div>`+users.map(u=>userCardHTML(u,followed.has(u.id))).join(''); }
+  if (posts?.length) { html+=`<div style="font-family:var(--fmono);font-size:10px;color:var(--muted);letter-spacing:.2em;margin:12px 0 8px">POSTS</div>`+posts.map(p=>postHTML(p,p.profiles,false,followed.has(p.author_id))).join(''); }
+  if (!html) html='<p class="empty-state">sin resultados</p>';
+  wrap.innerHTML=html;
+}
+
+function userCardHTML(u, isFollowing) {
+  const initial=u.display_name[0].toUpperCase();
+  const av=u.avatar_url?`<img src="${esc(u.avatar_url)}" class="post-avatar" style="display:block;width:40px;height:40px">`:`<div class="post-avatar" style="width:40px;height:40px">${initial}</div>`;
+  const vbadge=u.verified?`<span class="post-verified">✓</span>`:'';
+  return `<div class="user-card">
+    ${av}
+    <div class="user-card-info">
+      <div class="user-card-name" onclick="showView('profile','${u.id}')">${esc(u.display_name)}${vbadge}</div>
+      <div class="user-card-handle">@${esc(u.username)}</div>
+      ${u.bio?`<div class="user-card-bio">${esc(u.bio)}</div>`:''}
+    </div>
+    <div class="user-card-actions">
+      <button onclick="toggleFollow('${u.id}',${isFollowing})">${isFollowing?'✓ sig':'+ seguir'}</button>
+      <button onclick="startDM('${u.id}')">dm</button>
+    </div>
+  </div>`;
+}
+
+// ── PROFILE ───────────────────────────────────────
+async function loadProfile(userId, tab='posts') {
+  const c=document.getElementById('profile-content');
+  c.innerHTML='<p class="empty-state">cargando...</p>';
+  const {data:p}=await sb.from('profiles').select('*').eq('id',userId).single();
+  if (!p) { c.innerHTML='<p class="empty-state">perfil no encontrado</p>'; return; }
+
+  const {count:postCount}=await sb.from('posts').select('id',{count:'exact',head:true}).eq('author_id',userId);
+  const {count:followerCount}=await sb.from('follows').select('id',{count:'exact',head:true}).eq('following_id',userId);
+  const {count:followingCount}=await sb.from('follows').select('id',{count:'exact',head:true}).eq('follower_id',userId);
+  const isOwn=userId===currentUser.id;
+  const followed=await getFollowingSet();
+  const isFollowing=followed.has(userId);
+
+  const initial=p.display_name[0].toUpperCase();
+  const av=p.avatar_url?`<img src="${esc(p.avatar_url)}" class="profile-avatar" style="display:block">`:`<div class="profile-avatar">${initial}</div>`;
+  const vbadge=p.verified?`<span class="profile-verified" title="verificado">✓</span>`:'';
+
+  c.innerHTML=`
+    ${p.banner_url?`<img src="${esc(p.banner_url)}" class="profile-banner">`:`<div class="profile-banner-empty"></div>`}
+    <div class="profile-avatar-wrap">${av}</div>
+    <div class="profile-info">
+      <div><span class="profile-dname">${esc(p.display_name)}</span>${vbadge}</div>
+      <div class="profile-handle">@${esc(p.username)}</div>
+      ${p.bio?`<div class="profile-bio">${esc(p.bio)}</div>`:''}
+      <div class="profile-stats">
+        <span><b>${postCount||0}</b> posts</span>
+        <span style="cursor:pointer" onclick="loadFollowList('${userId}','followers')"><b>${followerCount||0}</b> seguidores</span>
+        <span style="cursor:pointer" onclick="loadFollowList('${userId}','following')"><b>${followingCount||0}</b> siguiendo</span>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        ${isOwn?`<button onclick="openEdit()">editar perfil</button>`:`<button onclick="toggleFollow('${p.id}',${isFollowing})">${isFollowing?'✓ siguiendo':'+ seguir'}</button><button onclick="startDM('${p.id}')">dm</button>`}
+        ${!isOwn?`<button class="danger" onclick="openReport('user','${p.id}')">⚑ reportar</button>`:''}
+      </div>
+    </div>
+    <div class="profile-tabs">
+      <button class="ptab${tab==='posts'?' active':''}" onclick="loadProfile('${userId}','posts')">posts</button>
+      <button class="ptab${tab==='likes'?' active':''}" onclick="loadProfile('${userId}','likes')">likes</button>
+    </div>
+    <div id="profile-posts-content"></div>`;
+
+  const pc=document.getElementById('profile-posts-content');
+  if (tab==='posts') {
+    const {data:posts}=await sb.from('posts').select('*, profiles!posts_author_id_fkey(*)').eq('author_id',userId).order('created_at',{ascending:false}).limit(30);
+    let liked=new Set();
+    if (posts?.length) {
+      const {data:ml}=await sb.from('likes').select('post_id').eq('user_id',currentUser.id).in('post_id',posts.map(x=>x.id));
+      if (ml) ml.forEach(l=>liked.add(l.post_id));
+    }
+    pc.innerHTML=posts?.length?posts.map(x=>postHTML(x,p,liked.has(x.id),false)).join(''):'<p class="empty-state">sin posts</p>';
+  } else {
+    const {data:likedPosts}=await sb.from('likes').select('post_id').eq('user_id',userId).limit(30);
+    if (!likedPosts?.length) { pc.innerHTML='<p class="empty-state">sin likes aún</p>'; return; }
+    const {data:posts}=await sb.from('posts').select('*, profiles!posts_author_id_fkey(*)').in('id',likedPosts.map(l=>l.post_id)).order('created_at',{ascending:false});
+    let liked=new Set(likedPosts.map(l=>l.post_id));
+    pc.innerHTML=posts?.length?posts.map(x=>postHTML(x,x.profiles,liked.has(x.id),false)).join(''):'<p class="empty-state">sin likes</p>';
+  }
+}
+
+async function loadFollowList(userId, type) {
+  const pc=document.getElementById('profile-posts-content'); if(!pc) return;
+  pc.innerHTML='<p class="empty-state">cargando...</p>';
+  let ids=[];
+  if (type==='followers') {
+    const {data}=await sb.from('follows').select('follower_id').eq('following_id',userId);
+    ids=data?.map(f=>f.follower_id)||[];
+  } else {
+    const {data}=await sb.from('follows').select('following_id').eq('follower_id',userId);
+    ids=data?.map(f=>f.following_id)||[];
+  }
+  if (!ids.length) { pc.innerHTML='<p class="empty-state">ninguno aún</p>'; return; }
+  const {data:users}=await sb.from('profiles').select('*').in('id',ids);
+  const followed=await getFollowingSet();
+  pc.innerHTML=users?.map(u=>userCardHTML(u,followed.has(u.id))).join('')||'';
+}
+
+// ── EDIT PROFILE ──────────────────────────────────
+function openEdit() {
+  document.getElementById('e-display').value=currentUser.display_name;
+  document.getElementById('e-bio').value=currentUser.bio||'';
+  document.getElementById('e-avatar').value=currentUser.avatar_url||'';
+  document.getElementById('e-banner').value=currentUser.banner_url||'';
+  document.getElementById('edit-modal').classList.remove('hidden');
+}
+function closeEdit() { document.getElementById('edit-modal').classList.add('hidden'); }
+
+async function saveProfile() {
+  const display_name=document.getElementById('e-display').value.trim();
+  const bio=document.getElementById('e-bio').value.trim();
+  const avatar_url=document.getElementById('e-avatar').value.trim();
+  const banner_url=document.getElementById('e-banner').value.trim();
+  if (!display_name) { setStatus('nombre vacío','err'); return; }
+  const {data,error}=await sb.from('profiles').update({display_name,bio,avatar_url,banner_url}).eq('id',currentUser.id).select().single();
+  if (error) { setStatus('error: '+error.message,'err'); return; }
+  currentUser=data; localStorage.setItem('ox_user',JSON.stringify(data));
+  document.getElementById('nav-user').textContent=currentUser.username;
+  closeEdit(); loadProfile(currentUser.id); setStatus('perfil actualizado ✓','ok');
+}
+
+// ── NOTIFICATIONS ─────────────────────────────────
+async function createNotif(userId, type, text, postId) {
+  await sb.from('notifications').insert({user_id:userId,type,text,post_id:postId,read:false});
+}
+
+async function loadNotifs() {
+  const c=document.getElementById('notifs-list');
+  c.innerHTML='<p class="empty-state">cargando...</p>';
+  const {data}=await sb.from('notifications').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(50);
+  if (!data?.length) { c.innerHTML='<p class="empty-state">sin notificaciones</p>'; return; }
+  const icons={like:'♥',reply:'💬',follow:'👤',repost:'↻'};
+  c.innerHTML=data.map(n=>`
+    <div class="notif-item${n.read?'':' unread'}">
+      <div class="notif-icon">${icons[n.type]||'🔔'}</div>
+      <div>
+        <div class="notif-text">${esc(n.text)}</div>
+        <div class="notif-time">${timeAgo(n.created_at)}</div>
+      </div>
+    </div>`).join('');
+}
+
+async function checkNotifs() {
+  if (!currentUser) return;
+  const {count}=await sb.from('notifications').select('id',{count:'exact',head:true}).eq('user_id',currentUser.id).eq('read',false);
+  const badge=document.getElementById('notif-badge'); if(!badge) return;
+  if (count>0) { badge.textContent=count; badge.classList.remove('hidden'); }
+  else badge.classList.add('hidden');
+}
+
+async function markNotifsRead() {
+  await sb.from('notifications').update({read:true}).eq('user_id',currentUser.id);
+  loadNotifs(); checkNotifs();
+}
+
+// ── DMs ───────────────────────────────────────────
+async function loadDMs() {
+  const c=document.getElementById('dm-convs'); c.innerHTML='';
+  // Direct chats
+  const {data:msgs}=await sb.from('messages').select('sender_id,receiver_id').or(`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`).is('group_id',null);
+  const otherIds=[...new Set((msgs||[]).map(m=>m.sender_id===currentUser.id?m.receiver_id:m.sender_id))];
+  if (otherIds.length) {
+    const {data:users}=await sb.from('profiles').select('*').in('id',otherIds);
+    (users||[]).forEach(u=>{
+      const btn=document.createElement('button');
+      btn.className='dm-conv-item'+(activeDmId===u.id&&!activeDmGroup?' active':'');
+      btn.onclick=()=>openDMChat(u.id,false);
+      btn.innerHTML=`<span class="dm-conv-dot"></span>${esc(u.display_name)}`;
+      c.appendChild(btn);
+    });
+  }
+  // Groups
+  const {data:groups}=await sb.from('group_members').select('group_id, groups(id,name)').eq('user_id',currentUser.id);
+  if (groups?.length) {
+    const div=document.createElement('div');
+    div.style='padding:8px 12px;font-family:var(--fmono);font-size:9px;color:var(--muted);letter-spacing:.2em;border-top:1px solid var(--border);margin-top:4px';
+    div.textContent='GRUPOS';
+    c.appendChild(div);
+    groups.forEach(gm=>{
+      if (!gm.groups) return;
+      const btn=document.createElement('button');
+      btn.className='dm-conv-item'+(activeDmId===gm.group_id&&activeDmGroup?' active':'');
+      btn.onclick=()=>openDMChat(gm.group_id,true,gm.groups.name);
+      btn.innerHTML=`<span class="dm-conv-dot online"></span>${esc(gm.groups.name)}<span class="dm-group-badge">GRUPO</span>`;
+      c.appendChild(btn);
+    });
+  }
+  if (!otherIds.length && !groups?.length) c.innerHTML='<p class="empty-state" style="font-size:10px;padding:12px">sin chats</p>';
+}
+
+async function startDM(userId) {
+  if (userId===currentUser.id) { setStatus('no puedes enviarte dm a ti mismo','err'); return; }
+  showView('dms');
+  setTimeout(()=>openDMChat(userId,false),250);
+}
+
+async function openDMChat(targetId, isGroup, groupName='') {
+  activeDmId=targetId; activeDmGroup=isGroup;
+  loadDMs();
+  const panel=document.getElementById('dm-chat-panel');
+  let headerHTML='';
+  if (isGroup) {
+    headerHTML=`<div class="dm-chat-head">${esc(groupName)}<span class="dm-group-badge">GRUPO</span></div>`;
+  } else {
+    const {data:other}=await sb.from('profiles').select('*').eq('id',targetId).single();
+    if (!other) return;
+    const initial=(other.display_name||'?')[0].toUpperCase();
+    const av=other.avatar_url?`<img src="${esc(other.avatar_url)}" class="post-avatar" style="display:block;width:28px;height:28px;border-radius:50%">`:`<div class="post-avatar" style="width:28px;height:28px;font-size:12px;border-radius:50%">${initial}</div>`;
+    headerHTML=`<div class="dm-chat-head">${av}<span>${esc(other.display_name)}</span><span style="font-family:var(--fmono);font-size:10px;color:var(--muted)">@${esc(other.username)}</span>${other.id===BOT_ID?'<span class="dm-group-badge" style="background:var(--accent2)">BOT</span>':''}</div>`;
+    // Mark as seen
+    await sb.from('messages').update({seen:true}).eq('sender_id',targetId).eq('receiver_id',currentUser.id).eq('seen',false);
+  }
+  panel.innerHTML=headerHTML+`
+    <div class="dm-chat">
+      <div class="dm-msgs-wrap" id="dm-msgs"></div>
+      <div id="dm-seen-indicator" class="dm-seen hidden">visto ✓</div>
+      <div class="dm-compose">
+        <input type="text" id="dm-inp" placeholder="escribe..." autocomplete="off">
+        <button class="primary" onclick="sendDM()">→</button>
+      </div>
+    </div>`;
+  document.getElementById('dm-inp').addEventListener('keydown',e=>{ if(e.key==='Enter') sendDM(); });
+  await renderMessages(targetId, isGroup);
+}
+
+async function renderMessages(targetId, isGroup) {
+  const box=document.getElementById('dm-msgs'); if(!box) return;
+  let msgs=[];
+  if (isGroup) {
+    const {data}=await sb.from('messages').select('*, profiles!messages_sender_id_fkey(display_name,username,avatar_url)').eq('group_id',targetId).order('created_at',{ascending:true}).limit(80);
+    msgs=data||[];
+  } else {
+    const {data}=await sb.from('messages').select('*, profiles!messages_sender_id_fkey(display_name,username,avatar_url)').or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${targetId}),and(sender_id.eq.${targetId},receiver_id.eq.${currentUser.id})`).is('group_id',null).order('created_at',{ascending:true}).limit(80);
+    msgs=data||[];
+    // Seen indicator
+    const lastOut=msgs.filter(m=>m.sender_id===currentUser.id).pop();
+    const seenEl=document.getElementById('dm-seen-indicator');
+    if (seenEl && lastOut?.seen) seenEl.classList.remove('hidden'); else if(seenEl) seenEl.classList.add('hidden');
+  }
+  if (!msgs.length) { box.innerHTML='<div style="font-family:var(--fmono);font-size:10px;color:var(--muted);text-align:center;padding:20px">sin mensajes aún</div>'; return; }
+  box.innerHTML=msgs.map(m=>{
+    const isMe=m.sender_id===currentUser.id;
+    const senderName=isGroup&&!isMe?`<div style="font-family:var(--fmono);font-size:9px;color:var(--muted);margin-bottom:2px">${esc(m.profiles?.display_name||'?')}</div>`:'';
+    return `${senderName}<div class="dm-msg ${isMe?'dm-msg-out':'dm-msg-in'}">${esc(m.content)}<div class="dm-msg-time">${timeAgo(m.created_at)}</div></div>`;
+  }).join('');
+  box.scrollTop=box.scrollHeight;
+}
+
+async function refreshActiveChat() {
+  if (!activeDmId) return;
+  const box=document.getElementById('dm-msgs'); if(!box) return;
+  const prevHeight=box.scrollHeight, prevScroll=box.scrollTop;
+  await renderMessages(activeDmId, activeDmGroup);
+  if (prevScroll+box.clientHeight >= prevHeight-20) box.scrollTop=box.scrollHeight;
+}
+
+async function sendDM() {
+  const inp=document.getElementById('dm-inp'); if(!inp) return;
+  const content=inp.value.trim(); if(!content) return;
+  inp.value='';
+  if (activeDmGroup) {
+    await sb.from('messages').insert({sender_id:currentUser.id,group_id:activeDmId,content,is_group:true,seen:false});
+  } else {
+    await sb.from('messages').insert({sender_id:currentUser.id,receiver_id:activeDmId,content,is_group:false,group_id:null,seen:false});
+  }
+  await renderMessages(activeDmId, activeDmGroup);
+}
+
+async function checkDMs() {
+  if (!currentUser) return;
+  const {count}=await sb.from('messages').select('id',{count:'exact',head:true}).eq('receiver_id',currentUser.id).eq('seen',false);
+  const badge=document.getElementById('dm-badge'); if(!badge) return;
+  if (count>0) { badge.textContent=count; badge.classList.remove('hidden'); }
+  else badge.classList.add('hidden');
+}
+
+// ── GROUP CHAT ────────────────────────────────────
+let groupSearchResults=[];
+function openNewGroupModal() { document.getElementById('group-modal').classList.remove('hidden'); groupSelectedUsers=[]; renderGroupSelected(); }
+function closeGroupModal() { document.getElementById('group-modal').classList.add('hidden'); groupSelectedUsers=[]; }
+
+async function searchGroupUsers(q) {
+  if (!q.trim()) { document.getElementById('group-user-results').innerHTML=''; return; }
+  const {data}=await sb.from('profiles').select('id,display_name,username').ilike('username',`%${q}%`).neq('id',currentUser.id).limit(8);
+  groupSearchResults=data||[];
+  document.getElementById('group-user-results').innerHTML=(data||[]).map(u=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)">
+      <span>${esc(u.display_name)} <span style="font-family:var(--fmono);font-size:10px;color:var(--muted)">@${esc(u.username)}</span></span>
+      <button onclick="addToGroup('${u.id}','${esc(u.display_name)}')">+ añadir</button>
+    </div>`).join('');
+}
+
+function addToGroup(id, name) {
+  if (groupSelectedUsers.find(u=>u.id===id)) return;
+  groupSelectedUsers.push({id,name});
+  renderGroupSelected();
+}
+function removeFromGroup(id) { groupSelectedUsers=groupSelectedUsers.filter(u=>u.id!==id); renderGroupSelected(); }
+function renderGroupSelected() {
+  document.getElementById('group-selected').innerHTML=groupSelectedUsers.map(u=>`<span style="background:var(--s3);border:1px solid var(--border);border-radius:3px;padding:3px 8px;font-size:12px;font-family:var(--fmono)">${esc(u.name)} <span style="cursor:pointer;color:var(--danger)" onclick="removeFromGroup('${u.id}')">✕</span></span>`).join('');
+}
+
+async function createGroup() {
+  const name=document.getElementById('group-name').value.trim();
+  if (!name) { setStatus('ponle nombre al grupo','err'); return; }
+  if (groupSelectedUsers.length<1) { setStatus('añade al menos un usuario','err'); return; }
+  const {data:group,error}=await sb.from('groups').insert({name,created_by:currentUser.id}).select().single();
+  if (error) { setStatus('error creando grupo','err'); return; }
+  const members=[{group_id:group.id,user_id:currentUser.id},...groupSelectedUsers.map(u=>({group_id:group.id,user_id:u.id}))];
+  await sb.from('group_members').insert(members);
+  closeGroupModal(); loadDMs(); setStatus('grupo creado ✓','ok');
+  setTimeout(()=>openDMChat(group.id,true,name),400);
+}
+
+// ── REPORTS ───────────────────────────────────────
+function openReport(type, id) { reportTarget={type,id}; document.getElementById('report-modal').classList.remove('hidden'); }
+function closeReport() { document.getElementById('report-modal').classList.add('hidden'); reportTarget=null; }
+async function submitReport() {
+  if (!reportTarget) return;
+  const reason=document.getElementById('report-reason').value;
+  await sb.from('reports').insert({reporter_id:currentUser.id,target_type:reportTarget.type,target_id:reportTarget.id,reason});
+  closeReport(); setStatus('reportado — gracias','ok');
+}
+
+// ── ADMIN ─────────────────────────────────────────
+async function loadAdmin() {
+  if (currentUser.username!==ADMIN_USER) { document.getElementById('view-admin').innerHTML='<p class="empty-state">acceso denegado</p>'; return; }
+
+  // Users
+  const {data:users}=await sb.from('profiles').select('*').neq('id',BOT_ID).order('created_at',{ascending:false});
+  document.getElementById('admin-users').innerHTML=(users||[]).map(u=>`
+    <div class="admin-item">
+      <span><b>${esc(u.display_name)}</b> <span style="font-family:var(--fmono);font-size:10px;color:var(--muted)">@${esc(u.username)}</span></span>
+      ${u.verified?`<span class="admin-badge badge-verified">verificado</span>`:''}
+      ${u.banned?`<span class="admin-badge badge-banned">baneado</span>`:''}
+      <div class="admin-actions">
+        <button onclick="adminToggleVerify('${u.id}',${u.verified})">${u.verified?'✕ verify':'✓ verify'}</button>
+        <button class="danger" onclick="adminToggleBan('${u.id}',${u.banned})">${u.banned?'desbanear':'banear'}</button>
+      </div>
+    </div>`).join('');
+
+  // Reports
+  const {data:reports}=await sb.from('reports').select('*').order('created_at',{ascending:false}).limit(30);
+  document.getElementById('admin-reports').innerHTML=(!reports?.length)
+    ?'<p class="empty-state">sin reportes</p>'
+    :reports.map(r=>`<div class="report-item"><b>${esc(r.target_type)}</b> ID: <span style="font-family:var(--fmono);font-size:11px">${esc(r.target_id)}</span><div class="report-reason">${esc(r.reason)}</div><div style="font-family:var(--fmono);font-size:10px;color:var(--muted);margin-top:4px">${timeAgo(r.created_at)}</div><button class="danger" style="margin-top:6px;font-size:10px" onclick="adminDeleteReport('${r.id}')">descartar</button></div>`).join('');
+
+  // Posts
+  const {data:posts}=await sb.from('posts').select('*, profiles!posts_author_id_fkey(display_name,username)').order('created_at',{ascending:false}).limit(20);
+  document.getElementById('admin-posts').innerHTML=(posts||[]).map(p=>`
+    <div class="admin-item" style="align-items:flex-start;flex-direction:column;gap:6px">
+      <div><b>${esc(p.profiles?.display_name||'?')}</b> <span style="font-family:var(--fmono);font-size:10px;color:var(--muted)">@${esc(p.profiles?.username||'?')} · ${timeAgo(p.created_at)}</span></div>
+      <div style="font-size:13px;color:var(--sub)">${esc((p.content||'').slice(0,120))}</div>
+      <button class="danger" style="font-size:10px" onclick="deletePost('${p.id}');loadAdmin()">borrar</button>
+    </div>`).join('');
+}
+
+async function adminToggleVerify(userId, current) {
+  await sb.from('profiles').update({verified:!current}).eq('id',userId);
+  loadAdmin();
+}
+async function adminToggleBan(userId, current) {
+  await sb.from('profiles').update({banned:!current}).eq('id',userId);
+  loadAdmin();
+}
+async function adminDeleteReport(id) {
+  await sb.from('reports').delete().eq('id',id);
+  loadAdmin();
+}
+
+// ── UTILS ─────────────────────────────────────────
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function timeAgo(ts) {
+  const s=Math.floor((Date.now()-new Date(ts))/1000);
+  if(s<60)return s+'s';if(s<3600)return Math.floor(s/60)+'m';
+  if(s<86400)return Math.floor(s/3600)+'h';return Math.floor(s/86400)+'d';
+}
+let statusTimer;
+function setStatus(msg, type='') {
+  const el=document.getElementById('status');
+  el.textContent=msg; el.className=type?'show '+type:'show';
+  clearTimeout(statusTimer);
+  statusTimer=setTimeout(()=>el.className='',3200);
+}
+</script>
+</body>
+</html>
