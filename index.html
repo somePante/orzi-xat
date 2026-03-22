@@ -1170,7 +1170,7 @@ function bootApp() {
 
   // New features init
   initTheme();
-  applyTranslation();
+  setTimeout(applyTranslation, 500);
   initPresence();
   initInfiniteScroll();
   initRealtime();
@@ -1179,6 +1179,53 @@ function bootApp() {
 
   // Load sidebar
   setTimeout(()=>{loadTrending();loadSuggestions();},800);
+
+// ── MOBILE NAV FORZADO POR JS ─────────────────────────────
+(function(){
+  var existing = document.getElementById('mobile-nav');
+  if(existing) existing.remove();
+  function isMobile(){ return window.innerWidth <= 640; }
+  var nav = document.createElement('div');
+  nav.id = 'mobile-nav';
+  function updateVisibility(){
+    nav.style.cssText = (isMobile() ? 'display:block!important' : 'display:none!important') +
+      ';position:fixed!important;bottom:0!important;left:0!important;right:0!important;width:100%!important;background:#0a0a0a!important;border-top:1px solid #222!important;z-index:999999!important;padding:6px 0!important;box-sizing:border-box!important';
+    var app = document.getElementById('app');
+    if(app) app.style.paddingBottom = isMobile() ? '70px' : '';
+  }
+  window.addEventListener('resize', updateVisibility);
+  var btns = [
+    {id:'mn-feed',   view:'feed',    badge:null,            svg:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>'},
+    {id:'mn-explore',view:'explore', badge:null,            svg:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>'},
+    {id:'mn-reels',  view:'reels',   badge:null,            svg:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><polygon points="10,8 16,12 10,16" fill="currentColor" stroke="none"/></svg>'},
+    {id:'mn-notifs', view:'notifs',  badge:'mn-notif-badge',svg:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>'},
+    {id:'mn-dms',    view:'dms',     badge:'mn-dm-badge2',  svg:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22,2 15,22 11,13 2,9" fill="currentColor" stroke="none"/></svg>'},
+    {id:'mn-profile',view:'profile', badge:null,            svg:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'},
+  ];
+  var links = document.createElement('div');
+  links.style.cssText = 'display:flex;justify-content:space-around;align-items:center;width:100%';
+  btns.forEach(function(b){
+    var btn = document.createElement('button');
+    btn.id = b.id;
+    btn.style.cssText = 'background:none;border:none;color:#555;padding:8px 0;cursor:pointer;position:relative;display:flex;align-items:center;justify-content:center;flex:1;-webkit-tap-highlight-color:transparent;touch-action:manipulation';
+    btn.innerHTML = b.svg;
+    if(b.badge){
+      var sp = document.createElement('span');
+      sp.id = b.badge;
+      sp.style.cssText = 'display:none;position:absolute;top:2px;right:10px;background:#ff4444;color:#fff;font-size:7px;border-radius:8px;padding:1px 5px;min-width:14px;text-align:center;font-family:monospace';
+      btn.appendChild(sp);
+    }
+    btn.onclick = function(){
+      if(b.view === 'profile') showView('profile', currentUser && currentUser.id);
+      else showView(b.view);
+    };
+    links.appendChild(btn);
+  });
+  nav.appendChild(links);
+  document.body.appendChild(nav);
+  updateVisibility();
+})();
+
 }
 
 function setNavAvatar() {
@@ -1229,6 +1276,7 @@ function showView(name, param) {
   if (name === 'settings')  loadSettings();
   syncMobileNav(name);
   if (name === 'feed'){setTimeout(()=>{loadTrending();loadSuggestions();},300);}
+  setTimeout(applyTranslation, 300);
 }
 
 // ── FEED ──────────────────────────────────────────────────────
@@ -1541,6 +1589,10 @@ async function toggleReplies(postId){
     // Set reply compose avatar
     const rcAv=document.getElementById('rc-av-'+postId);
     if(rcAv){ if(currentUser.avatar_url) rcAv.innerHTML=`<img src="${esc(currentUser.avatar_url)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`; else rcAv.textContent=currentUser.display_name[0].toUpperCase(); }
+    setTimeout(()=>{
+      const inp=document.getElementById('reply-inp-'+postId);
+      if(inp) inp.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();submitReply(postId);} });
+    },100);
   }
 }
 
@@ -1650,6 +1702,7 @@ async function loadExplore(){
   if(!users?.length){c.innerHTML='<p class="empty-state">no other users yet</p>';return;}
   const followed=await getFollowingSetCached();
   c.innerHTML=users.map(u=>userCardHTML(u,followed.has(u.id))).join('');
+  setTimeout(applyTranslation,50);
 }
 
 async function runSearch(q){
@@ -1843,6 +1896,7 @@ async function loadNotifs(){
     <div class="notif-icon">${icons[n.type]||'🔔'}</div>
     <div class="notif-body"><div class="notif-text">${esc(n.text)}</div><div class="notif-time">${timeAgo(n.created_at)}</div></div>
   </div>`).join('');
+  setTimeout(applyTranslation,50);
 }
 let _lastNotifCount = 0;
 async function checkNotifs(){
@@ -1959,7 +2013,7 @@ async function renderMessages(targetId,isGroup){
     const safeContent=(m.content||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
     const savedKey='saved_'+m.id; const isSaved=localStorage.getItem(savedKey);
     const actions=`<div class="dm-msg-actions" id="dma-${m.id}"><button class="dm-act-reply" onclick="setDMReply('${m.id}','${safeContent}')">↩ reply</button>${isMe?`<button class="dm-act-edit" onclick="editDMMsg('${m.id}','${safeContent}')">✏️ edit</button>`:''}<button class="dm-act-save" onclick="toggleSaveDM('${m.id}')">${isSaved?'★ unsave':'☆ save'}</button>${canDel?`<button class="dm-act-delete" onclick="deleteDMMsg('${m.id}')">✕ delete</button>`:''}</div>`;
-    return `<div class="dm-msg-row ${isMe?'out':'in'}" id="dmm-${m.id}">${senderName}<div class="dm-msg-wrap"><div class="dm-msg" onclick="toggleMsgActions('${m.id}')">${replyBar}${esc(m.content||'')}${imgEl}<div class="dm-msg-time">${timeAgo(m.created_at)}${m.edited?'<span class="dm-edited-label">edited</span>':''}</div></div>${actions}</div></div>`;
+    return `<div class="dm-msg-row ${isMe?'out':'in'}" id="dmm-${m.id}">${senderName}<div class="dm-msg-wrap">${actions}<div class="dm-msg" onclick="toggleMsgActions('${m.id}')">${replyBar}${esc(m.content||'')}${imgEl}<div class="dm-msg-time">${timeAgo(m.created_at)}${m.edited?'<span class="dm-edited-label">edited</span>':''}</div></div></div></div>`;
   }).join('');
   box.scrollTop=box.scrollHeight;
 }
@@ -2286,9 +2340,11 @@ function initTheme(){
 
 // ── MOBILE NAV SYNC ──────────────────────────────────────────
 function syncMobileNav(name){
-  ['feed','explore','notifs','dms','profile','settings'].forEach(v=>{
+  ['feed','explore','notifs','dms','profile','reels','settings'].forEach(v=>{
     const b=document.getElementById('mn-'+v);
-    if(b) b.classList.toggle('active',v===name);
+    if(!b) return;
+    b.style.color = v===name ? '#d4ff00' : '#555';
+    const svg=b.querySelector('svg'); if(svg) svg.setAttribute('stroke', v===name ? '#d4ff00' : 'currentColor');
   });
 }
 
@@ -3005,42 +3061,229 @@ function showLoyalUnlock(){
 }
 
 // ── I18N — Spanish translation ────────────────────────────────
-const TRANSLATIONS={
-  'what\'s on your mind? use #hashtags':'¿qué estás pensando? usa #hashtags',
+// ── SISTEMA DE TRADUCCIÓN COMPLETO ───────────────────────────
+const ES = {
+  // Nav
   'feed':'inicio','explore':'explorar','notifs':'notifs','messages':'mensajes',
-  'profile':'perfil','settings':'ajustes','post':'publicar','loading...':'cargando...',
+  'profile':'perfil','settings':'ajustes','⚙':'⚙',
+
+  // Compose
+  "what's on your mind? use #hashtags":'¿qué estás pensando? usa #hashtags',
+  'post':'publicar','GIF':'GIF',
+
+  // Feed tabs
+  'global':'global','following':'siguiendo',
+
+  // Feed vacío
   'no posts yet — be the first!':'¡sin posts aún — sé el primero!',
-  'followers':'seguidores','following':'siguiendo','edit profile':'editar perfil',
-  'save':'guardar','cancel':'cancelar','reply':'responder','delete':'eliminar',
-  'Search people or posts...':'Buscar personas o posts...',
-  'mark all read':'marcar todo leído','no notifications':'sin notificaciones',
-  'Allow direct messages':'Permitir mensajes directos',
-  'Allow followers':'Permitir seguidores','Like notifications':'Notificaciones de likes',
-  'Push notifications':'Notificaciones push','Do not disturb':'No molestar',
-  'Session history':'Historial de sesiones','sign out':'cerrar sesión',
-  '+ group':'+ grupo','pick a chat to start 👈':'elige un chat para empezar 👈',
-  'Explore':'Explorar','Notifications':'Notificaciones','Messages':'Mensajes',
-  'Settings':'Ajustes','Admin Panel':'Panel de Admin',
-  'Global':'Global','Following':'Siguiendo',
-  'no chats yet':'sin chats aún','no results':'sin resultados',
-  'type a message...':'escribe un mensaje...','message...':'mensaje...',
+  'loading...':'cargando...',
+
+  // Post acciones
+  'reply':'responder','delete':'eliminar','message':'mensaje','report':'reportar',
+  '+ follow':'+ seguir','✓ sig':'✓ siguiendo',
+  'write a reply...':'escribe una respuesta...',
+  'no replies yet':'sin respuestas aún',
+
+  // Repost modal
+  'Repost':'Repost','add a comment (optional)':'añade un comentario (opcional)',
+  'share your thoughts...':'comparte tu opinión...',
+
+  // Explore
+  'Explore':'Explorar',
+  '🔍  search people or posts...':'🔍  buscar personas o posts...',
+  'no other users yet':'sin otros usuarios aún',
+  'no results':'sin resultados','searching...':'buscando...',
+
+  // Notifs
+  'Notifications':'Notificaciones','mark all read':'marcar todo leído',
+  'no notifications':'sin notificaciones',
+
+  // Profile
+  'edit profile':'editar perfil','posts':'posts','likes':'likes',
+  'followers':'seguidores','nobody yet':'nadie aún',
+
+  // Edit profile modal
+  'Edit Profile':'Editar Perfil','display name':'nombre','bio':'bio',
+  'avatar url':'url del avatar','banner url':'url del banner',
+  'change password (leave blank to keep)':'cambiar contraseña (vacío = no cambiar)',
+  'save':'guardar','cancel':'cancelar',
+
+  // DMs
+  'Messages':'Mensajes','+ group':'+ grupo',
+  'pick a chat to start 👈':'elige un chat para empezar 👈',
+  'no chats yet':'sin chats aún','Chats':'Chats',
+  'message...':'mensaje...','no messages yet — say hi 👋':'sin mensajes — di hola 👋',
+  'New Group':'Nuevo Grupo','group name':'nombre del grupo',
+  'find people':'buscar personas','search a username...':'buscar usuario...',
+  'create group':'crear grupo',
+
+  // Settings
+  'Settings':'Ajustes',
+  '🔒 Privacy':'🔒 Privacidad',
+  'Direct messages':'Mensajes directos',
+  'When off, nobody can DM you':'Si está desactivado, nadie puede escribirte',
+  'Private account 🔒':'Cuenta privada 🔒',
+  'Only approved followers can see your posts':'Solo seguidores aprobados ven tus posts',
+  'Allow followers':'Permitir seguidores',
+  'When off, nobody can follow you':'Si está desactivado, nadie puede seguirte',
+  '🔔 Notifications':'🔔 Notificaciones',
+  'Like notifications':'Notificaciones de likes',
+  'Notify when someone likes your post':'Avisar cuando alguien dé like a tu post',
+  'Do not disturb':'No molestar',
+  'Mute all notifications for a period':'Silenciar notificaciones por un tiempo',
+  'Push notifications':'Notificaciones push',
+  'Get notified even when the app is closed':'Recibir avisos aunque la app esté cerrada',
+  'enable':'activar',
+  '👤 Display':'👤 Apariencia',
+  'Show user ID on posts':'Mostrar ID en posts',
+  'Your ID visible below your handle':'Tu ID visible bajo tu usuario',
+  '🔐 Session history':'🔐 Historial de sesiones',
+  '🌐 Language':'🌐 Idioma',
+  '⚙️ Account':'⚙️ Cuenta',
+  'view profile':'ver perfil',
+  'sign out':'cerrar sesión',
+
+  // Reels
+  '▶ reels':'▶ reels',
+  'no reels yet — be the first!':'¡sin reels aún — sé el primero!',
+  'add a comment...':'añade un comentario...',
+  'COMMENTS':'COMENTARIOS','responder':'responder',
+  'Enviar reel':'Enviar reel','copiar link':'copiar link','cerrar':'cerrar',
+  'preparando vídeo...':'preparando vídeo...',
+  'optimizando...':'optimizando...','subiendo reel...':'subiendo reel...',
+  'guardando...':'guardando...',
+
+  // Admin
+  '⚡ Admin Panel':'⚡ Panel Admin',
+  'Dashboard':'Panel','Users':'Usuarios','Ban History':'Historial de Bans',
+  'Reports':'Reportes','Recent Posts':'Posts recientes',
+  '📢 global announcement':'📢 anuncio global',
+
+  // Report modal
+  'Report':'Reportar','reason':'motivo',
+  'spam':'spam','harassment':'acoso',
+  'inappropriate content':'contenido inapropiado','other':'otro',
+
+  // Placeholders inputs
+  'your_username':'tu_usuario',
+  'how people know you':'como te conoce la gente',
+  'at least 6 characters':'mínimo 6 caracteres',
+  'type it again':'repítela',
+  'add a comment...':'añade un comentario...',
+  'search a username...':'busca un usuario...',
+  'search GIFs...':'buscar GIFs...',
+  'event name...':'nombre del evento...',
+  'option A':'opción A','option B':'opción B',
+  'group name...':'nombre del grupo...',
+  'add a comment...':'añade un comentario...',
+  'search messages...':'buscar mensajes...',
+
+  // Empty states
+  'loading...':'cargando...',
+  'no posts yet — be the first!':'¡sin posts aún — sé el primero!',
+  'no other users yet':'sin otros usuarios aún',
+  'no likes yet':'sin likes aún',
+  'no notifications':'sin notificaciones',
+  'no reports':'sin reportes',
+  'no banned users':'sin usuarios baneados',
+  'no replies yet — say something!':'sin respuestas — ¡di algo!',
+  'no comments yet — say something!':'sin comentarios — ¡di algo!',
+
+  // Sidebar
+  'Trending':'Tendencias','Who to follow':'A quién seguir',
+  'no trends yet':'sin tendencias aún',
+  'follow more people to get suggestions':'sigue a más gente para ver sugerencias',
+  'follow':'seguir',
+
+  // Tiempo
+  's':'s','m':'m','h':'h','d':'d',
+
+  // Misc
+  'anonymous post on':'post anónimo activado',
+  'anonymous post off':'post anónimo desactivado',
+  'reposted ✓':'reposteado ✓',
+  'profile updated ✓':'perfil actualizado ✓',
+  'saved ✓':'guardado ✓',
+  'link copied ✓':'link copiado ✓',
+  'reel posted ✓':'reel publicado ✓',
+  'reel deleted':'reel eliminado',
+  'group created ✓':'grupo creado ✓',
+  'reported — thanks':'reportado — gracias',
+  'already enabled ✓':'ya activado ✓',
 };
+
+function t(str){ return (localStorage.getItem('ox_lang')==='es' && ES[str]) ? ES[str] : str; }
+
 function applyTranslation(){
   if(localStorage.getItem('ox_lang')!=='es') return;
-  // Translate placeholder and text nodes
+
+  // Placeholders
   document.querySelectorAll('[placeholder]').forEach(el=>{
-    const t=TRANSLATIONS[el.placeholder];
-    if(t) el.placeholder=t;
+    if(ES[el.placeholder]) el.placeholder=ES[el.placeholder];
   });
-  document.querySelectorAll('.nav-btn,.tab-btn,.ptab,.section-h,.settings-label,.sidebar-box-title').forEach(el=>{
-    const t=TRANSLATIONS[el.textContent.trim()];
-    if(t) el.textContent=t;
+
+  // data-i18n attribute (para elementos dinámicos)
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const key=el.dataset.i18n;
+    if(ES[key]) el.textContent=ES[key];
   });
+
+  // Selectores de texto estático en la UI
+  const selectors=[
+    '.nav-btn','.tab-btn','.ptab','.section-h',
+    '.settings-label','.settings-desc','.settings-card-title',
+    '.sidebar-box-title','.modal-title','.auth-tagline',
+    '.empty-state','.dm-sidebar-head','.dm-chat-head-handle',
+    '.reel-btn-label','.mn-btn-label',
+    'button.primary','button.ghost','button.danger',
+    '.compose-tool','label','.field-hint',
+    '.auth-tab','.auth-divider',
+  ];
+
+  document.querySelectorAll(selectors.join(',')).forEach(el=>{
+    const txt=el.textContent.trim().toLowerCase();
+    // Buscar coincidencia exacta o case-insensitive
+    const match=ES[el.textContent.trim()]||ES[txt]||ES[el.textContent.trim().toLowerCase()];
+    if(match && !el.querySelector('input, textarea, select, button, svg')) {
+      el.textContent=match;
+    }
+  });
+
+  // Nav buttons específicos
+  const navMap={
+    'nb-feed':'inicio','nb-explore':'explorar','nb-notifs':'notifs',
+    'nb-dms':'mensajes','nb-profile':'perfil','nb-settings':'⚙',
+    'tab-global':'global','tab-following':'siguiendo',
+  };
+  Object.entries(navMap).forEach(([id,text])=>{
+    const el=document.getElementById(id);
+    if(el) el.childNodes.forEach(n=>{ if(n.nodeType===3) n.textContent=text; });
+  });
+
+  // Translate post-inp placeholder
+  const postInp=document.getElementById('post-inp');
+  if(postInp) postInp.placeholder=ES["what's on your mind? use #hashtags"]||postInp.placeholder;
+
+  // Search placeholder
+  const searchInp=document.getElementById('search-inp');
+  if(searchInp) searchInp.placeholder='🔍  buscar personas o posts...';
+
+  // DM placeholder
+  const dmInp=document.getElementById('dm-inp');
+  if(dmInp) dmInp.placeholder='mensaje...';
 }
+
+// Wrapper para traducir strings en JS dinámico
+function applyTranslationToElement(el){
+  if(localStorage.getItem('ox_lang')!=='es') return;
+  if(!el) return;
+  el.querySelectorAll('[placeholder]').forEach(inp=>{ if(ES[inp.placeholder]) inp.placeholder=ES[inp.placeholder]; });
+}
+
 function setLanguage(lang){
   localStorage.setItem('ox_lang',lang);
   if(lang==='es') applyTranslation();
-  else location.reload(); // reload to reset to English
+  else location.reload();
   setStatus(lang==='es'?'Idioma: Español 🇪🇸':'Language: English 🇬🇧','ok');
 }
 
