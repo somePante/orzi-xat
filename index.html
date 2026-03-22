@@ -52,16 +52,16 @@ select option{background:var(--s2)}
 @keyframes splashFade{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.05)}}
 .sp-title{font-family:var(--ftitle);font-size:clamp(86px,22vw,200px);letter-spacing:.05em;line-height:.84;text-align:center;position:relative;z-index:1}
 .sp-title .ln{display:block;overflow:hidden}
-.sp-title .ln span{display:block;transform:translateY(110%)}
+.sp-title .ln span{display:block}
 .sp-title .ln:nth-child(1) span{animation:slideUp .65s cubic-bezier(.22,1,.36,1) .1s forwards}
 .sp-title .ln:nth-child(2) span{animation:slideUp .65s cubic-bezier(.22,1,.36,1) .25s forwards;color:var(--accent)}
 @keyframes slideUp{to{transform:translateY(0)}}
 .sp-by{font-family:var(--fmono);font-size:10px;letter-spacing:.4em;color:var(--muted);margin-top:24px;opacity:0;animation:fadeUp .5s ease .8s forwards;text-transform:uppercase}
 .sp-by b{color:var(--sub)}
-.sp-loader{margin-top:44px;width:180px;height:1px;background:var(--border);overflow:hidden;opacity:0;animation:fadeUp .4s ease .95s forwards}
+.sp-loader{margin-top:44px;width:180px;height:1px;background:var(--border);overflow:hidden}
 .sp-loader::after{content:'';display:block;height:100%;width:0%;background:var(--accent);animation:loadBar 1.5s cubic-bezier(.4,0,.2,1) 1.1s forwards}
 @keyframes loadBar{to{width:100%}}
-.sp-status{font-family:var(--fmono);font-size:9px;color:var(--muted);letter-spacing:.25em;margin-top:10px;opacity:0;animation:fadeUp .4s ease 1.1s forwards}
+.sp-status{font-family:var(--fmono);font-size:9px;color:var(--muted);letter-spacing:.25em;margin-top:10px}
 
 
 @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
@@ -657,8 +657,8 @@ window.addEventListener('DOMContentLoaded', () => {
         console.error('Boot error:', e);
         showAuth();
       }
-    }, 600);
-  }, 2200);
+    }, 400);
+  }, 1500);
 });
 
 // ── AUTH TABS ─────────────────────────────────────────────────
