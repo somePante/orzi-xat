@@ -609,6 +609,17 @@ const BOT_REPLIES = ['🔥 buen post','💯','👀 interesante','facts 🤝','ja
 
 // ── SPLASH ────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
+  // Hard failsafe: if nothing renders in 5s, force auth screen
+  const _failsafe = setTimeout(() => {
+    const appHidden   = document.getElementById('app').classList.contains('hidden');
+    const authHidden  = document.getElementById('auth-screen').classList.contains('hidden');
+    const spHidden    = document.getElementById('set-pass-screen').classList.contains('hidden');
+    if (appHidden && authHidden && spHidden) {
+      document.getElementById('splash').style.display = 'none';
+      showAuth();
+    }
+  }, 5000);
+  window._failsafe = _failsafe;
   window.addEventListener('online',  ()=>document.getElementById('offline-bar').style.display='none');
   window.addEventListener('offline', ()=>document.getElementById('offline-bar').style.display='block');
   if (!navigator.onLine) document.getElementById('offline-bar').style.display='block';
@@ -623,28 +634,37 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('splash').classList.add('out');
     setTimeout(async ()=>{
       document.getElementById('splash').style.display='none';
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        const {data:fresh} = await sb.from('profiles').select('*').eq('id', parsed.id).single();
-        const profile = fresh || parsed;
-        if (profile.banned) { localStorage.clear(); showAuth(); return; }
-        currentUser = profile;
-        localStorage.setItem('ox_user', JSON.stringify(profile));
-        if (!profile.password_hash || profile.password_hash === '' || profile.password_hash === 'bot_no_login') {
-          showSetPassword();
+      try {
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          let profile = parsed;
+          try {
+            const {data:fresh} = await sb.from('profiles').select('*').eq('id', parsed.id).single();
+            if (fresh) profile = fresh;
+          } catch(e) { /* offline — use cached */ }
+          if (profile.banned) { localStorage.clear(); showAuth(); return; }
+          currentUser = profile;
+          localStorage.setItem('ox_user', JSON.stringify(profile));
+          if (!profile.password_hash || profile.password_hash === '' || profile.password_hash === 'bot_no_login') {
+            showSetPassword();
+          } else {
+            bootApp();
+          }
         } else {
-          bootApp();
+          showAuth();
         }
-      } else {
+      } catch(e) {
+        console.error('Boot error:', e);
         showAuth();
       }
-    }, 750);
-  }, 2600);
+    }, 600);
+  }, 2200);
 });
 
 // ── AUTH TABS ─────────────────────────────────────────────────
 
 function showAuth() {
+  clearTimeout(window._failsafe);
   const screen = document.getElementById('auth-screen');
   screen.classList.remove('hidden');
   setTimeout(() => screen.classList.add('visible'), 30);
@@ -732,6 +752,7 @@ async function doRegister() {
 
 // ── SET PASSWORD (for existing accounts migrating) ───────────
 function showSetPassword() {
+  clearTimeout(window._failsafe);
   document.getElementById('set-pass-screen').classList.remove('hidden');
   setTimeout(()=>document.getElementById('set-pass-screen').classList.add('visible'), 30);
   // Prefill name so they know who they are
@@ -756,6 +777,7 @@ async function doSetPassword() {
 
 // ── BOOT ─────────────────────────────────────────────────────
 function bootApp() {
+  clearTimeout(window._failsafe);
   document.getElementById('auth-screen').classList.add('hidden');
   const app = document.getElementById('app');
   app.classList.remove('hidden');
