@@ -330,13 +330,29 @@ select option{background:var(--s2)}
 #status.err{border-color:var(--danger);color:var(--danger)}
 #status.ok{border-color:var(--success);color:var(--success)}
 
+/* ── SETTINGS ── */
+.settings-section{margin-bottom:20px}
+.settings-section h4{font-family:var(--fmono);font-size:10px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;margin-bottom:10px}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)}
+.settings-row:last-child{border-bottom:none}
+.settings-label{font-size:14px;color:var(--text)}
+.settings-desc{font-family:var(--fmono);font-size:10px;color:var(--muted);margin-top:2px}
+.toggle{position:relative;width:40px;height:22px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0;position:absolute}
+.toggle-slider{position:absolute;inset:0;background:var(--border2);border-radius:22px;cursor:pointer;transition:background .2s}
+.toggle-slider::before{content:'';position:absolute;width:16px;height:16px;left:3px;top:3px;background:#fff;border-radius:50%;transition:transform .2s}
+.toggle input:checked+.toggle-slider{background:var(--accent)}
+.toggle input:checked+.toggle-slider::before{transform:translateX(18px)}
+.toggle-slider::before{background:var(--sub)}
+.toggle input:checked+.toggle-slider::before{background:#000}
+
 /* ── GRAIN ── */
 body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:10001;opacity:.5}
 </style>
 </head>
 <body>
 
-<div id="offline-bar">YOU'RE OFFLINE — some things won't load</div>
+<div id="offline-bar">YOU'RE OFFLINE — some features may not work</div>
 
 <!-- LIGHTBOX -->
 <div id="lightbox" class="hidden" onclick="closeLightbox()">
@@ -382,14 +398,14 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       <div class="field">
         <label>password</label>
         <input id="r-pass" type="password" placeholder="at least 6 characters" autocomplete="new-password">
-        <div class="field-hint">guárdala bien, no hay recuperación por email</div>
+        <div class="field-hint">save it well — no email recovery</div>
       </div>
       <div class="field">
         <label>confirm password</label>
         <input id="r-pass2" type="password" placeholder="type it again" autocomplete="new-password">
       </div>
       <button class="primary auth-btn" onclick="doRegister()">CREATE ACCOUNT →</button>
-      <div class="auth-divider">tu ID de usuario</div>
+      <div class="auth-divider">your user ID</div>
       <div class="uid-display">generated when you sign up — save it in case you need support</div>
     </div>
 
@@ -408,10 +424,11 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       <button class="nav-btn" onclick="showView('dms')" id="nb-dms">messages<span id="dm-badge" class="nav-badge hidden"></span></button>
       <button class="nav-btn" onclick="showView('profile',currentUser?.id)" id="nb-profile">profile</button>
       <button class="nav-btn" id="nb-admin" onclick="showView('admin')" style="display:none">⚡</button>
+      <button class="nav-btn" onclick="showView('settings')" id="nb-settings">⚙</button>
     </div>
     <div class="nav-right">
       <div class="nav-avatar" id="nav-av" onclick="showView('profile',currentUser?.id)"></div>
-      <span class="nav-user" onclick="logout()" title="salir">@<b id="nav-user"></b></span>
+      <span class="nav-user" onclick="logout()" title="logout">@<b id="nav-user"></b></span>
     </div>
   </div>
 
@@ -493,6 +510,48 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     </div>
   </div>
 
+  <!-- SETTINGS -->
+  <div id="view-settings" class="view hidden">
+    <div class="section-h">Settings</div>
+    <div class="settings-section">
+      <h4>Privacy</h4>
+      <div class="settings-row">
+        <div>
+          <div class="settings-label">Recibir messages directos</div>
+          <div class="settings-desc">When off, nobody can send you DMs</div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="set-dms" onchange="saveSetting('allow_dms',this.checked)"><span class="toggle-slider"></span></label>
+      </div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-label">Like notifications</div>
+          <div class="settings-desc">When off, you won't get like notifications</div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="set-like-notifs" onchange="saveSetting('allow_like_notifs',this.checked)"><span class="toggle-slider"></span></label>
+      </div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-label">Allow followers</div>
+          <div class="settings-desc">When off, nobody can follow you</div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="set-follows" onchange="saveSetting('allow_follows',this.checked)"><span class="toggle-slider"></span></label>
+      </div>
+    </div>
+    <div class="settings-section">
+      <h4>Account</h4>
+      <div class="settings-row">
+        <div>
+          <div class="settings-label">Show user ID on posts</div>
+          <div class="settings-desc">Your ID appears below your handle on each post</div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="set-show-uid" onchange="saveSetting('show_uid',this.checked)"><span class="toggle-slider"></span></label>
+      </div>
+    </div>
+    <div style="margin-top:24px">
+      <button class="danger" onclick="if(confirm('¿Seguro? Esto borra tu sesión.'))logout()">sign out</button>
+    </div>
+  </div>
+
   <!-- ADMIN -->
   <div id="view-admin" class="view hidden">
     <div class="section-h" style="color:var(--warn)">⚡ Admin Panel</div>
@@ -513,9 +572,9 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 // ── CONFIG ────────────────────────────────────────────────────
 const SB_URL    = 'https://tjhccssrfoporrrzhgyx.supabase.co';
 const SB_KEY    = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRqaGNjc3NyZm9wb3JycnpoZ3l4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMjc4NzYsImV4cCI6MjA4OTcwMzg3Nn0.vH_W-O4c3xLlyDoK6YZuA6KYLtYS2-h6CDGxkYRE8GM';
-const ADMIN_USER = 'saad';
-const ADMIN_IDS  = ['u_pante_'];
-const ADMIN_USERNAMES = ['saad','pante_'];
+const ADMIN_USER = 'p4nte_';
+const ADMIN_IDS  = ['u_pante_', 'u_p4nte_'];
+const ADMIN_USERNAMES = ['saad','pante_', 'p4nte_'];
 const BOT_ID     = 'u_orzixat_bot';
 
 let sb = null, currentUser = null;
@@ -664,7 +723,7 @@ async function doRegister() {
 
   if (!username||!dname||!pass) { err.textContent='— fill in all the fields'; return; }
   if (pass.length < 6) { err.textContent='— password must be at least 6 characters'; return; }
-  if (pass !== pass2) { err.textContent='— las contraseñas no coinciden'; return; }
+  if (pass !== pass2) { err.textContent='— passwords do not match'; return; }
 
   const id = 'u_'+username;
   const {data:existing} = await sb.from('profiles').select('id').eq('id',id).maybeSingle();
@@ -699,7 +758,7 @@ async function doSetPassword() {
   const pass2 = document.getElementById('sp-pass2').value;
   const err   = document.getElementById('sp-err');
   if (!pass || pass.length < 6) { err.textContent='— at least 6 characters'; return; }
-  if (pass !== pass2) { err.textContent='— las contraseñas no coinciden'; return; }
+  if (pass !== pass2) { err.textContent='— passwords do not match'; return; }
   const password_hash = await hashPass(pass);
   const {data, error} = await sb.from('profiles').update({password_hash}).eq('id', currentUser.id).select().single();
   if (error) { err.textContent='— error: '+error.message; return; }
@@ -776,7 +835,7 @@ function logout() {
 // ── VIEWS ─────────────────────────────────────────────────────
 function showView(name, param) {
   // hide all views and deactivate nav buttons
-  ['feed', 'explore', 'profile', 'dms', 'notifs', 'admin'].forEach(viewName => {
+  ['feed', 'explore', 'profile', 'dms', 'notifs', 'admin', 'settings'].forEach(viewName => {
     document.getElementById('view-' + viewName).classList.add('hidden');
     const btn = document.getElementById('nb-' + viewName);
     if (btn) btn.classList.remove('active');
@@ -793,7 +852,8 @@ function showView(name, param) {
   if (name === 'profile') loadProfile(param || currentUser.id);
   if (name === 'dms')     loadDMs();
   if (name === 'notifs')  loadNotifs();
-  if (name === 'admin')   loadAdmin();
+  if (name === 'admin')    loadAdmin();
+  if (name === 'settings')  loadSettings();
 }
 
 // ── FEED ──────────────────────────────────────────────────────
@@ -819,7 +879,7 @@ async function loadFeed() {
   if(!navigator.onLine){
     const cached=JSON.parse(localStorage.getItem('ox_cached_posts')||'[]');
     if(cached.length){c.innerHTML=cached.map(p=>postHTML(p,p.profiles,false,false)).join('');return;}
-    c.innerHTML='<p class="empty-state">sin conexión</p>';return;
+    c.innerHTML='<p class="empty-state">offline</p>';return;
   }
   c.innerHTML='<p class="empty-state" style="padding:20px 0">loading...</p>';
   let query=sb.from('posts').select('*, profiles!posts_author_id_fkey(*)').order('created_at',{ascending:false}).limit(60);
@@ -827,14 +887,14 @@ async function loadFeed() {
   if(feedTab==='following'){
     const{data:follows}=await sb.from('follows').select('following_id').eq('follower_id',currentUser.id);
     const ids=follows?.map(f=>f.following_id)||[];
-    if(!ids.length){c.innerHTML='<p class="empty-state">no sigues a nadie aún</p>';return;}
+    if(!ids.length){c.innerHTML='<p class="empty-state">no one followed yet</p>';return;}
     query=query.in('author_id',ids);
   } else if(feedTab==='hashtag'&&activeHashtag){
     query=query.ilike('content','%#'+activeHashtag+'%');
   }
 
   const{data:posts}=await query;
-  if(!posts?.length){c.innerHTML='<p class="empty-state">sin posts aún ¡sé el primero!</p>';return;}
+  if(!posts?.length){c.innerHTML='<p class="empty-state">no posts yet — be the first!</p>';return;}
   localStorage.setItem('ox_cached_posts',JSON.stringify(posts.slice(0,20)));
 
   let liked=new Set(), voted=new Map();
@@ -934,7 +994,7 @@ function postHTML(post, author, liked, isFollowing, votedOption) {
       </button>
       <button class="act-btn comment" onclick="toggleReplies('${post.id}')">💬 ${replyCount}</button>
       <button class="act-btn repost-act" onclick="openRepost('${post.id}')">↻</button>
-      ${!isOwn&&!isBot?`<button class="act-btn" onclick="toggleFollow('${author.id}',${isFollowing})">${isFollowing?'✓ sig':'+ seguir'}</button>`:''}
+      ${!isOwn&&!isBot?`<button class="act-btn" onclick="toggleFollow('${author.id}',${isFollowing})">${isFollowing?'✓ sig':'+ follow'}</button>`:''}
       ${!isOwn&&!isBot?`<button class="act-btn" onclick="startDM('${author.id}')">message</button>`:''}
       ${!isOwn?`<button class="act-btn danger" onclick="openReport('post','${post.id}')">⚑</button>`:''}
       ${(isOwn||isAdmin)?`<button class="act-btn danger" onclick="deletePost('${post.id}')">✕</button>`:''}
@@ -1049,8 +1109,8 @@ async function publishPost(){
   if(pollA&&pollB){ insertObj.poll_a=pollA; insertObj.poll_b=pollB; insertObj.poll_votes_a=0; insertObj.poll_votes_b=0; }
 
   const{error}=await sb.from('posts').insert(insertObj);
-  btn.textContent='publicar'; btn.disabled=false;
-  if(error){ setStatus('oops: '+error.message,'err'); return; }
+  btn.textContent='post'; btn.disabled=false;
+  if(error){ setStatus('error: '+error.message,'err'); return; }
 
   inp.value=''; document.getElementById('cc').textContent='280';
   pendingImgs=[]; renderImgThumbs();
@@ -1086,7 +1146,7 @@ async function toggleReplies(postId){
 async function loadReplies(postId){
   const c=document.getElementById('replies-list-'+postId); if(!c) return;
   const{data:replies}=await sb.from('replies').select('*, profiles!replies_author_id_fkey(*)').eq('post_id',postId).order('created_at',{ascending:true}).limit(30);
-  if(!replies?.length){c.innerHTML='<p class="empty-state" style="font-size:10px;padding:8px 0;text-align:left">sin respuestas aún</p>';return;}
+  if(!replies?.length){c.innerHTML='<p class="empty-state" style="font-size:10px;padding:8px 0;text-align:left">no replies yet</p>';return;}
   c.innerHTML=replies.map(r=>{
     const isOwn=r.author_id===currentUser.id||ADMIN_IDS.includes(currentUser.id);
     const av=r.profiles?.avatar_url?`<img src="${esc(r.profiles.avatar_url)}" class="post-avatar" style="display:block;width:28px;height:28px">`:`<div class="post-avatar" style="width:28px;height:28px;font-size:11px">${(r.profiles?.display_name||'?')[0].toUpperCase()}</div>`;
@@ -1192,9 +1252,9 @@ async function runSearch(q){
   const{data:posts}=await sb.from('posts').select('*, profiles!posts_author_id_fkey(*)').ilike('content',`%${q}%`).order('created_at',{ascending:false}).limit(10);
   const followed=await getFollowingSet();
   let html='';
-  if(users?.length) html+=`<div style="font-family:var(--fmono);font-size:9px;color:var(--muted);letter-spacing:.2em;margin-bottom:8px;text-transform:uppercase">Usuarios</div>`+users.map(u=>userCardHTML(u,followed.has(u.id))).join('');
+  if(users?.length) html+=`<div style="font-family:var(--fmono);font-size:9px;color:var(--muted);letter-spacing:.2em;margin-bottom:8px;text-transform:uppercase">Users</div>`+users.map(u=>userCardHTML(u,followed.has(u.id))).join('');
   if(posts?.length) html+=`<div style="font-family:var(--fmono);font-size:9px;color:var(--muted);letter-spacing:.2em;margin:14px 0 8px;text-transform:uppercase">Posts</div>`+posts.map(p=>postHTML(p,p.profiles,false,followed.has(p.author_id))).join('');
-  if(!html) html='<p class="empty-state">sin resultados</p>';
+  if(!html) html='<p class="empty-state">no results</p>';
   wrap.innerHTML=html;
 }
 
@@ -1211,7 +1271,7 @@ function userCardHTML(u,isFollowing){
       ${u.bio?`<div class="user-card-bio">${esc(u.bio)}</div>`:''}
     </div>
     <div class="user-card-actions">
-      <button onclick="toggleFollow('${u.id}',${isFollowing})">${isFollowing?'✓ sig':'+ seguir'}</button>
+      <button onclick="toggleFollow('${u.id}',${isFollowing})">${isFollowing?'✓ sig':'+ follow'}</button>
       <button onclick="startDM('${u.id}')">dm</button>
     </div>
   </div>`;
@@ -1222,7 +1282,7 @@ async function loadProfile(userId,tab='posts'){
   const c=document.getElementById('profile-content');
   c.innerHTML='<p class="empty-state">loading...</p>';
   const{data:p}=await sb.from('profiles').select('*').eq('id',userId).single();
-  if(!p){c.innerHTML='<p class="empty-state">perfil no encontrado</p>';return;}
+  if(!p){c.innerHTML='<p class="empty-state">profile no encontrado</p>';return;}
   const{count:pc}=await sb.from('posts').select('id',{count:'exact',head:true}).eq('author_id',userId);
   const{count:flrC}=await sb.from('follows').select('id',{count:'exact',head:true}).eq('following_id',userId);
   const{count:flgC}=await sb.from('follows').select('id',{count:'exact',head:true}).eq('follower_id',userId);
@@ -1256,7 +1316,7 @@ async function loadProfile(userId,tab='posts'){
         <span onclick="loadFollowList('${userId}','following')"><b>${flgC||0}</b> following</span>
       </div>
       <div class="profile-btns">
-        ${isOwn?`<button onclick="openEdit()">edit profile</button>`:`<button onclick="toggleFollow('${p.id}',${isFollowing})">${isFollowing?'✓ siguiendo':'+ seguir'}</button><button onclick="startDM('${p.id}')">dm</button><button class="danger" onclick="openReport('user','${p.id}')">⚑ report</button>`}
+        ${isOwn?`<button onclick="openEdit()">edit profile</button>`:`<button onclick="toggleFollow('${p.id}',${isFollowing})">${isFollowing?'✓ following':'+ follow'}</button><button onclick="startDM('${p.id}')">dm</button><button class="danger" onclick="openReport('user','${p.id}')">⚑ report</button>`}
       </div>
     </div>
     <div class="profile-tabs">
@@ -1270,13 +1330,13 @@ async function loadProfile(userId,tab='posts'){
     const{data:posts}=await sb.from('posts').select('*, profiles!posts_author_id_fkey(*)').eq('author_id',userId).order('created_at',{ascending:false}).limit(30);
     let liked=new Set();
     if(posts?.length){ const{data:ml}=await sb.from('likes').select('post_id').eq('user_id',currentUser.id).in('post_id',posts.map(x=>x.id)); if(ml) ml.forEach(l=>liked.add(l.post_id)); }
-    pc2.innerHTML=posts?.length?posts.map(x=>postHTML(x,p,liked.has(x.id),false)).join(''):'<p class="empty-state">sin posts</p>';
+    pc2.innerHTML=posts?.length?posts.map(x=>postHTML(x,p,liked.has(x.id),false)).join(''):'<p class="empty-state">no posts</p>';
   } else {
     const{data:likedPosts}=await sb.from('likes').select('post_id').eq('user_id',userId).limit(30);
     if(!likedPosts?.length){pc2.innerHTML='<p class="empty-state">no likes yet</p>';return;}
     const{data:posts}=await sb.from('posts').select('*, profiles!posts_author_id_fkey(*)').in('id',likedPosts.map(l=>l.post_id)).order('created_at',{ascending:false});
     const liked=new Set(likedPosts.map(l=>l.post_id));
-    pc2.innerHTML=posts?.length?posts.map(x=>postHTML(x,x.profiles,liked.has(x.id),false)).join(''):'<p class="empty-state">sin likes</p>';
+    pc2.innerHTML=posts?.length?posts.map(x=>postHTML(x,x.profiles,liked.has(x.id),false)).join(''):'<p class="empty-state">no likes</p>';
   }
 }
 
@@ -1302,19 +1362,19 @@ async function handleProfileFileSelect(input) {
 async function handleProfileImgDrop(event, type) {
   event.preventDefault();
   const file = event.dataTransfer?.files?.[0];
-  if (!file || !file.type.startsWith('image/')) { setStatus('solo imágenes — PNG/JPG/GIF','err'); return; }
+  if (!file || !file.type.startsWith('image/')) { setStatus('images only — PNG/JPG/GIF','err'); return; }
   await uploadProfileImg(file, type);
 }
 
 async function uploadProfileImg(file, type) {
-  setStatus('subiendo imagen...', '');
+  setStatus('uploading image...', '');
   const fname = `${currentUser.id}_${type}_${Date.now()}.jpg`;
   const {error:ue} = await sb.storage.from('post-images').upload(fname, file, {contentType:file.type, upsert:true});
-  if (ue) { setStatus('error subiendo — ¿creaste el bucket post-images?','err'); return; }
+  if (ue) { setStatus('upload error — did you create the post-images bucket?','err'); return; }
   const {data:ud} = sb.storage.from('post-images').getPublicUrl(fname);
   const field = type === 'banner' ? 'banner_url' : 'avatar_url';
   const {data, error} = await sb.from('profiles').update({[field]: ud.publicUrl}).eq('id', currentUser.id).select().single();
-  if (error) { setStatus('error guardando: '+error.message,'err'); return; }
+  if (error) { setStatus('error saving: '+error.message,'err'); return; }
   currentUser = data;
   localStorage.setItem('ox_user', JSON.stringify(data));
   setNavAvatar();
@@ -1341,21 +1401,21 @@ async function saveProfile(){
   const avatar_url=document.getElementById('e-avatar').value.trim();
   const banner_url=document.getElementById('e-banner').value.trim();
   const newPass=document.getElementById('e-pass').value;
-  if(!display_name){setStatus('nombre vacío','err');return;}
+  if(!display_name){setStatus('name cannot be empty','err');return;}
   const updates={display_name,bio,avatar_url,banner_url};
   if(newPass){
-    if(newPass.length<6){setStatus('contraseña mínimo 6 chars','err');return;}
+    if(newPass.length<6){setStatus('password needs 6+ chars','err');return;}
     updates.password_hash=await hashPass(newPass);
   }
   console.log('[ORZI] saving profile', updates);
   const{data,error}=await sb.from('profiles').update(updates).eq('id',currentUser.id).select().single();
   console.log('[ORZI] save result data:', data, 'error:', error);
   if(error){setStatus('error: '+error.message,'err');return;}
-  if(!data){setStatus('sin respuesta — revisa políticas de Supabase','err');return;}
+  if(!data){setStatus('no response — check Supabase policies','err');return;}
   currentUser=data;
   localStorage.setItem('ox_user',JSON.stringify(data));
   document.getElementById('nav-user').textContent=currentUser.username;
-  setNavAvatar(); closeEdit(); loadProfile(currentUser.id); setStatus('perfil actualizado ✓','ok');
+  setNavAvatar(); closeEdit(); loadProfile(currentUser.id); setStatus('profile actualizado ✓','ok');
 }
 
 // ── NOTIFICATIONS ─────────────────────────────────────────────
@@ -1364,7 +1424,7 @@ async function loadNotifs(){
   const c=document.getElementById('notifs-list');
   c.innerHTML='<p class="empty-state">loading...</p>';
   const{data}=await sb.from('notifications').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(50);
-  if(!data?.length){c.innerHTML='<p class="empty-state">sin notificaciones</p>';return;}
+  if(!data?.length){c.innerHTML='<p class="empty-state">no notifications</p>';return;}
   const icons={like:'♥',reply:'💬',follow:'👤',repost:'↻',loyal:'👑'};
   c.innerHTML=data.map(n=>`<div class="notif-item${n.read?'':' unread'}">
     <div class="notif-icon">${icons[n.type]||'🔔'}</div>
@@ -1415,7 +1475,15 @@ async function loadDMs(){
 }
 
 async function startDM(userId){
-  if(userId===currentUser.id){setStatus('you can\'t DM yourself','err');return;}
+  if(userId===currentUser.id){setStatus('cannot DM yourself','err');return;}
+  // Check if target has DMs disabled
+  const{data:target}=await sb.from('profiles').select('settings').eq('id',userId).single();
+  if(target){
+    try{
+      const ts=JSON.parse(target.settings||'{}');
+      if(ts.allow_dms===false){setStatus('this user has DMs disabled','err');return;}
+    }catch(e){}
+  }
   showView('dms'); setTimeout(()=>openDMChat(userId,false),250);
 }
 
@@ -1541,9 +1609,82 @@ async function submitReport(){
 }
 
 // ── ADMIN ─────────────────────────────────────────────────────
+// ── SETTINGS ─────────────────────────────────────────────────
+function getSettings(profile){
+  try { return JSON.parse(profile?.settings||'{}'); } catch(e){ return {}; }
+}
+
+async function loadSettings(){
+  // Fetch fresh from DB
+  const{data:fresh}=await sb.from('profiles').select('settings').eq('id',currentUser.id).single();
+  if(fresh?.settings){ currentUser.settings=fresh.settings; localStorage.setItem('ox_user',JSON.stringify(currentUser)); }
+  const s=getSettings(currentUser);
+  // Wait for DOM elements to be visible
+  const apply = () => {
+    const dms     = document.getElementById('set-dms');
+    const likeN   = document.getElementById('set-like-notifs');
+    const follows = document.getElementById('set-follows');
+    const uid     = document.getElementById('set-show-uid');
+    if(!dms) return; // elements not in DOM yet
+    dms.checked     = s.allow_dms         !== false;
+    likeN.checked   = s.allow_like_notifs  !== false;
+    follows.checked = s.allow_follows      !== false;
+    uid.checked     = s.show_uid           !== false;
+  };
+  apply();
+  // Retry after short delay in case view was just made visible
+  setTimeout(apply, 100);
+}
+
+async function saveSetting(key, value){
+  const s=getSettings(currentUser);
+  s[key]=value;
+  console.log('[ORZI] saving setting', key, value, s);
+  const{data,error}=await sb.from('profiles').update({settings:JSON.stringify(s)}).eq('id',currentUser.id).select().single();
+  console.log('[ORZI] setting saved', data, error);
+  if(error){setStatus('error: '+error.message,'err');return;}
+  if(!data){setStatus('no response from server','err');return;}
+  currentUser=data; localStorage.setItem('ox_user',JSON.stringify(data));
+  setStatus('saved ✓','ok');
+}
+
+// Admin: open settings modal for any user
+async function adminOpenUserSettings(userId, displayName){
+  const{data:u}=await sb.from('profiles').select('*').eq('id',userId).single();
+  if(!u) return;
+  const s=getSettings(u);
+  const modal=document.createElement('div');
+  modal.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:100%;background:rgba(0,0,0,.85);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px';
+  modal.innerHTML=`
+    <div class="modal-box" style="max-width:380px">
+      <div class="modal-title">Settings — ${esc(displayName)}</div>
+      <div style="font-family:var(--fmono);font-size:9px;color:var(--muted);margin-bottom:16px">ID: ${esc(userId)}</div>
+      ${['allow_dms','allow_like_notifs','allow_follows','show_uid'].map(k=>`
+      <div class="settings-row">
+        <div class="settings-label">${({'allow_dms':'Allow DMs','allow_like_notifs':'Like notifications','allow_follows':'Allow followers','show_uid':'Show user ID'})[k]||k}</div>
+        <label class="toggle"><input type="checkbox" id="as-${k}" ${s[k]!==false?'checked':''}><span class="toggle-slider"></span></label>
+      </div>`).join('')}
+      <div class="modal-actions" style="margin-top:16px">
+        <button class="primary" onclick="adminSaveUserSettings('${userId}',this.closest('.modal-box'))">save</button>
+        <button onclick="this.closest('[style]').remove()">cancel</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+async function adminSaveUserSettings(userId, box){
+  const keys=['allow_dms','allow_like_notifs','allow_follows','show_uid'];
+  const s={};
+  keys.forEach(k=>{ s[k]=box.querySelector('#as-'+k).checked; });
+  await sb.from('profiles').update({settings:JSON.stringify(s)}).eq('id',userId);
+  box.closest('[style]').remove();
+  setStatus('settings saved ✓','ok');
+  loadAdmin();
+}
+
 async function loadAdmin(){
   const isAdmin=ADMIN_IDS.includes(currentUser.id)||ADMIN_USERNAMES.includes(currentUser.username);
-  if(!isAdmin){document.getElementById('view-admin').innerHTML='<p class="empty-state">acceso denegado</p>';return;}
+  if(!isAdmin){document.getElementById('view-admin').innerHTML='<p class="empty-state">access denied</p>';return;}
   const{data:users}=await sb.from('profiles').select('*').neq('id',BOT_ID).order('created_at',{ascending:false});
   document.getElementById('admin-users').innerHTML=(users||[]).map(u=>`<div class="admin-item">
     <div style="flex:1;min-width:0">
@@ -1552,12 +1693,13 @@ async function loadAdmin(){
     </div>
     <div class="admin-actions">
       <button onclick="adminToggleVerify('${u.id}',${u.verified})">${u.verified?'✕ verify':'✓ verify'}</button>
-      <button class="danger" onclick="adminToggleBan('${u.id}',${u.banned})">${u.banned?'desbanear':'banear'}</button>
+      <button onclick="adminOpenUserSettings('${u.id}','${esc(u.display_name)}')">⚙ settings</button>
+      <button class="danger" onclick="adminToggleBan('${u.id}',${u.banned})">${u.banned?'unban':'ban'}</button>
     </div>
   </div>`).join('');
 
   const{data:reports}=await sb.from('reports').select('*').order('created_at',{ascending:false}).limit(30);
-  document.getElementById('admin-reports').innerHTML=!reports?.length?'<p class="empty-state">sin reportes</p>':reports.map(r=>`<div class="report-item"><b>${esc(r.target_type)}</b> → <span style="font-family:var(--fmono);font-size:11px">${esc(r.target_id)}</span><div class="report-reason">${esc(r.reason)}</div><div style="font-family:var(--fmono);font-size:9px;color:var(--muted);margin-top:4px">${timeAgo(r.created_at)}</div><button class="danger" style="margin-top:6px;font-size:10px" onclick="adminDeleteReport('${r.id}')">dismiss</button></div>`).join('');
+  document.getElementById('admin-reports').innerHTML=!reports?.length?'<p class="empty-state">no reports</p>':reports.map(r=>`<div class="report-item"><b>${esc(r.target_type)}</b> → <span style="font-family:var(--fmono);font-size:11px">${esc(r.target_id)}</span><div class="report-reason">${esc(r.reason)}</div><div style="font-family:var(--fmono);font-size:9px;color:var(--muted);margin-top:4px">${timeAgo(r.created_at)}</div><button class="danger" style="margin-top:6px;font-size:10px" onclick="adminDeleteReport('${r.id}')">dismiss</button></div>`).join('');
 
   const{data:posts}=await sb.from('posts').select('*, profiles!posts_author_id_fkey(display_name,username)').order('created_at',{ascending:false}).limit(20);
   document.getElementById('admin-posts').innerHTML=(posts||[]).map(p=>`<div class="admin-item" style="align-items:flex-start;flex-direction:column;gap:5px">
@@ -1630,13 +1772,13 @@ async function checkEarlyUser() {
 
 // ── BOT ───────────────────────────────────────────────────────
 async function sendBotDM(userId){
-  await sb.from('profiles').upsert({id:BOT_ID,username:'orzixat_bot',display_name:'ORZI BOT',bio:'Bot oficial de ORZI XAT 🤖',avatar_url:'',banner_url:'',verified:true,banned:false,password_hash:'bot_no_login'},{onConflict:'id'});
+  await sb.from('profiles').upsert({id:BOT_ID,username:'orzixat_bot',display_name:'ORZI BOT',bio:'Official ORZI XAT bot 🤖',avatar_url:'',banner_url:'',verified:true,banned:false,password_hash:'bot_no_login'},{onConflict:'id'});
   await sb.from('messages').insert({sender_id:BOT_ID,receiver_id:userId,content:'👋 Bienvenido/a a ORZI XAT! Soy el bot oficial. Te dare like a tus posts automaticamente. Si algo falla, escribele a @saad. Disfruta!',is_group:false,group_id:null,seen:false});
 }
 
 async function botTick(){
   if(!currentUser||!sb) return;
-  await sb.from('profiles').upsert({id:BOT_ID,username:'orzixat_bot',display_name:'ORZI BOT',bio:'Bot oficial 🤖',avatar_url:'',banner_url:'',verified:true,banned:false,password_hash:'bot_no_login'},{onConflict:'id'});
+  await sb.from('profiles').upsert({id:BOT_ID,username:'orzixat_bot',display_name:'ORZI BOT',bio:'Official bot 🤖',avatar_url:'',banner_url:'',verified:true,banned:false,password_hash:'bot_no_login'},{onConflict:'id'});
   const{data:af}=await sb.from('follows').select('id').eq('follower_id',BOT_ID).eq('following_id',currentUser.id).maybeSingle();
   if(!af){ await sb.from('follows').insert({follower_id:BOT_ID,following_id:currentUser.id}); createNotif(currentUser.id,'follow','ORZI BOT started following you 🤖',null); }
   const{data:posts}=await sb.from('posts').select('id,likes_count,content,author_id').eq('author_id',currentUser.id).order('created_at',{ascending:false}).limit(10);
@@ -1697,8 +1839,8 @@ function setStatus(msg, type = '') {
       We added passwords to keep your account safe.<br>
       Pick something you'll remember — there's no email recovery.
     </div>
-    <div class="field"><label>new password</label><input id="sp-pass" type="password" placeholder="mínimo 6 caracteres" autocomplete="new-password"></div>
-    <div class="field"><label>confirm password</label><input id="sp-pass2" type="password" placeholder="repite la contraseña" autocomplete="new-password"></div>
+    <div class="field"><label>new password</label><input id="sp-pass" type="password" placeholder="min 6 characters" autocomplete="new-password"></div>
+    <div class="field"><label>confirm password</label><input id="sp-pass2" type="password" placeholder="confirm password" autocomplete="new-password"></div>
     <button class="primary auth-btn" onclick="doSetPassword()">SAVE & CONTINUE →</button>
     <div class="auth-err" id="sp-err"></div>
   </div>
@@ -1712,7 +1854,7 @@ function setStatus(msg, type = '') {
     <div class="field"><label>avatar url</label><input id="e-avatar" type="text" placeholder="https://..."></div>
     <div class="field"><label>banner url</label><input id="e-banner" type="text" placeholder="https://..."></div>
     <div class="field">
-      <label>change password (leave blank to keep current)</label>
+      <label>change password (leave blank to keep)</label>
       <input id="e-pass" type="password" placeholder="new password">
     </div>
     <div class="modal-actions">
