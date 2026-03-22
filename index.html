@@ -68,9 +68,9 @@ select option{background:var(--s2)}
 @keyframes fadeIn{to{opacity:1}}
 
 /* ── AUTH SCREEN ── */
-#auth-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px 20px;opacity:0;transform:translateY(16px);transition:opacity .5s ease,transform .5s ease;background:var(--bg)}
-#auth-screen.visible{opacity:1;transform:translateY(0)}
-#set-pass-screen.visible{opacity:1!important;transform:translateY(0)!important}
+#auth-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px 20px;background:var(--bg)}
+
+
 .auth-box{width:100%;max-width:420px;background:var(--s1);border:1px solid var(--border);border-radius:var(--r2);padding:36px 32px;box-shadow:var(--shadow)}
 .auth-logo{font-family:var(--ftitle);font-size:54px;letter-spacing:.05em;line-height:1;margin-bottom:2px}
 .auth-logo span{color:var(--accent)}
@@ -91,8 +91,8 @@ select option{background:var(--s2)}
 .uid-display b{color:var(--accent2)}
 
 /* ── APP ── */
-#app{display:flex;flex-direction:column;min-height:100vh;max-width:700px;margin:0 auto;padding:0 16px;opacity:0;transition:opacity .4s ease}
-#app.visible{opacity:1}
+#app{display:flex;flex-direction:column;min-height:100vh;max-width:700px;margin:0 auto;padding:0 16px}
+
 
 /* ── NAV ── */
 #nav{display:flex;align-items:center;padding:13px 0;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(8,8,8,.94);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);z-index:100;gap:2px;flex-wrap:wrap}
@@ -572,7 +572,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 <div id="status"></div>
 
 <!-- SET PASSWORD SCREEN (for existing accounts) -->
-<div id="set-pass-screen" class="hidden" style="position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px;z-index:800;opacity:0;transform:translateY(14px);transition:opacity .4s ease,transform .4s ease">
+<div id="set-pass-screen" class="hidden" style="position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px;z-index:800">
   <div class="auth-box">
     <div class="auth-logo">ORZI <span>XAT</span></div>
     <div class="auth-tagline">NEW — PASSWORD REQUIRED</div>
@@ -677,9 +677,7 @@ window.addEventListener('DOMContentLoaded', () => {
 function showAuth() {
   console.log('[ORZI] showAuth called');
   clearTimeout(window._failsafe);
-  const screen = document.getElementById('auth-screen');
-  screen.classList.remove('hidden');
-  setTimeout(() => screen.classList.add('visible'), 30);
+  document.getElementById('auth-screen').classList.remove('hidden');
 }
 
 function switchAuthTab(tab) {
@@ -766,7 +764,6 @@ async function doRegister() {
 function showSetPassword() {
   clearTimeout(window._failsafe);
   document.getElementById('set-pass-screen').classList.remove('hidden');
-  setTimeout(()=>document.getElementById('set-pass-screen').classList.add('visible'), 30);
   // Prefill name so they know who they are
   const name = currentUser?.display_name || currentUser?.username || '';
   document.getElementById('sp-who').textContent = name;
@@ -791,9 +788,7 @@ async function doSetPassword() {
 function bootApp() {
   clearTimeout(window._failsafe);
   document.getElementById('auth-screen').classList.add('hidden');
-  const app = document.getElementById('app');
-  app.classList.remove('hidden');
-  setTimeout(()=>app.classList.add('visible'), 30);
+  document.getElementById('app').classList.remove('hidden');
 
   document.getElementById('nav-user').textContent = currentUser.username;
   setNavAvatar();
