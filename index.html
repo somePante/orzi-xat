@@ -611,11 +611,161 @@ body.light{--bg:#f5f5f5;--s0:#ededed;--s1:#e6e6e6;--s2:#dadada;--s3:#cecece;--s4
 
 /* ── GRAIN ── */
 body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:10001;opacity:.5}
+
+/* ── STORIES BAR ── */
+.stories-bar{display:flex;gap:12px;padding:14px 0 10px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--border);margin-bottom:12px}
+.stories-bar::-webkit-scrollbar{display:none}
+.story-pill{display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;flex-shrink:0;width:62px}
+.story-ring{width:54px;height:54px;border-radius:50%;padding:2px;background:linear-gradient(135deg,var(--accent),var(--accent2));flex-shrink:0}
+.story-ring.seen{background:var(--border2)}
+.story-ring.add-story{background:var(--s3);border:1.5px dashed var(--border2)}
+.story-inner{width:100%;height:100%;border-radius:50%;border:2px solid var(--bg);overflow:hidden;background:var(--s3);display:flex;align-items:center;justify-content:center;font-family:var(--ftitle);font-size:18px;color:var(--sub)}
+.story-inner img{width:100%;height:100%;object-fit:cover;display:block}
+.story-label{font-family:var(--fmono);font-size:9px;color:var(--muted);letter-spacing:.04em;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%}
+
+/* ── STORY VIEWER ── */
+#story-viewer{position:fixed;inset:0;background:#000;z-index:5000;display:flex;flex-direction:column}
+.sv-top{position:absolute;top:0;left:0;right:0;z-index:2;padding:10px 14px 0}
+.sv-bars{display:flex;gap:4px;margin-bottom:10px}
+.sv-bar{flex:1;height:2px;background:rgba(255,255,255,.3);border-radius:2px;overflow:hidden}
+.sv-bar-fill{height:100%;background:#fff;width:0%;transition:width linear}
+.sv-bar.done .sv-bar-fill{width:100%}
+.sv-header{display:flex;align-items:center;gap:10px}
+.sv-av{width:32px;height:32px;border-radius:50%;object-fit:cover;background:var(--s3);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--ftitle);font-size:13px;color:#fff;overflow:hidden}
+.sv-name{color:#fff;font-weight:700;font-size:13px}
+.sv-time{font-family:var(--fmono);font-size:9px;color:rgba(255,255,255,.6);margin-left:4px}
+.sv-close{margin-left:auto;background:none;border:none;color:#fff;font-size:22px;cursor:pointer;letter-spacing:0;padding:2px 6px}
+.sv-media{width:100%;height:100%;object-fit:contain}
+.sv-caption{position:absolute;bottom:80px;left:0;right:0;padding:12px 18px;color:#fff;font-size:14px;text-shadow:0 1px 4px rgba(0,0,0,.7);z-index:2}
+.sv-nav{position:absolute;inset:0;display:flex;z-index:1}
+.sv-nav-left{flex:1}
+.sv-nav-right{flex:1}
+.sv-reply{position:absolute;bottom:16px;left:14px;right:14px;display:flex;gap:8px;z-index:3}
+.sv-reply input{flex:1;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;padding:10px 16px;border-radius:24px;font-size:13px;backdrop-filter:blur(8px)}
+.sv-reply input::placeholder{color:rgba(255,255,255,.5)}
+.sv-reply button{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.35);color:#fff;border-radius:50%;width:40px;height:40px;font-size:16px;cursor:pointer;flex-shrink:0;letter-spacing:0}
+.sv-viewers{position:absolute;bottom:80px;right:14px;z-index:3;background:rgba(0,0,0,.5);border-radius:12px;padding:5px 10px;font-family:var(--fmono);font-size:10px;color:rgba(255,255,255,.8);cursor:pointer;backdrop-filter:blur(6px)}
+
+/* ── STORY HIGHLIGHTS on profile ── */
+.profile-highlights{display:flex;gap:14px;overflow-x:auto;padding:10px 0 4px;scrollbar-width:none}
+.profile-highlights::-webkit-scrollbar{display:none}
+.highlight-pill{display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;flex-shrink:0;width:64px}
+.highlight-ring{width:56px;height:56px;border-radius:50%;border:1.5px solid var(--border2);overflow:hidden;background:var(--s3);display:flex;align-items:center;justify-content:center;font-size:22px}
+.highlight-ring img{width:100%;height:100%;object-fit:cover;display:block}
+.highlight-label{font-family:var(--fmono);font-size:9px;color:var(--muted);text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%}
+.highlight-add{border:1.5px dashed var(--border2);background:none;font-size:20px;cursor:pointer}
+
+/* ── IG-STYLE FEED ── */
+.ig-post{background:var(--s1);border:1px solid var(--border);border-radius:var(--r2);margin-bottom:16px;overflow:hidden;animation:postIn .25s ease}
+.ig-post:hover{border-color:var(--border2)}
+.ig-post-header{display:flex;align-items:center;gap:10px;padding:12px 14px}
+.ig-post-avatar{width:36px;height:36px;border-radius:50%;background:var(--s3);border:1.5px solid var(--border);object-fit:cover;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--ftitle);font-size:14px;color:var(--muted);overflow:hidden;cursor:pointer}
+.ig-post-avatar:hover{border-color:var(--accent2)}
+.ig-post-meta{flex:1;min-width:0}
+.ig-post-name{font-weight:700;font-size:13px;cursor:pointer;line-height:1.2}
+.ig-post-name:hover{color:var(--accent2)}
+.ig-post-handle{font-family:var(--fmono);font-size:10px;color:var(--muted)}
+.ig-post-time{font-family:var(--fmono);font-size:10px;color:var(--muted);flex-shrink:0}
+.ig-post-media{width:100%;background:var(--s2)}
+.ig-post-media img{width:100%;display:block;max-height:600px;object-fit:cover;cursor:pointer}
+.ig-post-media img.portrait{max-height:520px;object-fit:cover}
+.ig-post-media-multi{display:grid;gap:2px}
+.ig-post-media-multi.two{grid-template-columns:1fr 1fr}
+.ig-post-media-multi.three{grid-template-columns:1fr 1fr;grid-template-rows:auto auto}
+.ig-post-media-multi.three img:first-child{grid-column:1/-1}
+.ig-post-media-multi img{width:100%;aspect-ratio:1;object-fit:cover;cursor:pointer;display:block}
+.ig-post-media-multi.two img{aspect-ratio:1}
+.ig-post-actions{display:flex;align-items:center;gap:2px;padding:8px 10px 4px}
+.ig-act{background:none;border:none;color:var(--muted);font-size:20px;padding:5px 7px;cursor:pointer;border-radius:var(--r);transition:all .15s;letter-spacing:0;line-height:1}
+.ig-act:hover{color:var(--text);background:var(--s3)}
+.ig-act.liked{color:var(--accent3)}
+.ig-act.liked:hover{color:#ff2266}
+.ig-act-right{margin-left:auto}
+.ig-post-likes{font-weight:700;font-size:13px;padding:0 14px 4px}
+.ig-post-caption{padding:0 14px 8px;font-size:14px;line-height:1.5;color:var(--text)}
+.ig-post-caption b{cursor:pointer}
+.ig-post-caption b:hover{color:var(--accent2)}
+.ig-view-comments{font-family:var(--fmono);font-size:10px;color:var(--muted);padding:0 14px 6px;cursor:pointer;letter-spacing:.04em}
+.ig-view-comments:hover{color:var(--accent2)}
+.ig-post-comment-row{display:flex;gap:10px;align-items:center;padding:0 14px 10px}
+.ig-comment-av{width:24px;height:24px;border-radius:50%;background:var(--s3);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:var(--ftitle);font-size:10px;color:var(--muted)}
+.ig-comment-av img{width:100%;height:100%;object-fit:cover;display:block}
+.ig-comment-inp{flex:1;background:none;border:none;font-family:var(--fbody);font-size:13px;color:var(--text);outline:none;padding:0}
+.ig-comment-inp::placeholder{color:var(--muted)}
+.ig-post-reactions{display:flex;gap:4px;flex-wrap:wrap;padding:0 14px 6px}
+
+/* ── PINNED POST ── */
+.pin-label{font-family:var(--fmono);font-size:9px;color:var(--accent);letter-spacing:.12em;margin-bottom:6px;display:flex;align-items:center;gap:4px}
+
+/* ── REEL COMMENT THREADS ── */
+.rcd-comment{display:flex;gap:10px}
+.rcd-comment.reply{margin-left:42px;margin-top:6px}
+.rcd-actions{display:flex;align-items:center;gap:8px;margin-top:4px}
+.rcd-like-btn{background:none;border:none;font-size:11px;color:var(--muted);font-family:var(--fmono);cursor:pointer;padding:0;letter-spacing:.04em;transition:color .15s}
+.rcd-like-btn:hover,.rcd-like-btn.liked{color:var(--accent3)}
+.rcd-reply-btn{background:none;border:none;font-size:11px;color:var(--muted);font-family:var(--fmono);cursor:pointer;padding:0;letter-spacing:.04em;transition:color .15s}
+.rcd-reply-btn:hover{color:var(--accent2)}
+.rcd-mention{color:var(--accent2);font-weight:600}
+.rcd-reply-bar{display:flex;align-items:center;gap:6px;padding:6px 14px;background:var(--s2);border-top:1px solid var(--border);font-family:var(--fmono);font-size:10px;color:var(--muted);flex-shrink:0}
+.rcd-reply-bar span{flex:1;color:var(--accent2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rcd-reply-bar button{background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:0 4px;letter-spacing:0}
+
+/* ── NOW PLAYING ── */
+.now-playing{display:flex;align-items:center;gap:8px;background:var(--s2);border:1px solid var(--border);border-radius:var(--r2);padding:8px 12px;margin-bottom:10px;font-size:13px}
+.np-icon{font-size:16px;animation:npSpin 3s linear infinite}
+@keyframes npSpin{0%,100%{transform:rotate(0deg)}25%{transform:rotate(-10deg)}75%{transform:rotate(10deg)}}
+.np-text{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;color:var(--sub)}
+.np-text b{color:var(--text)}
+
+/* ── PROFILE EXTRA (website, location, tz) ── */
+.profile-meta-row{display:flex;align-items:center;gap:6px;font-family:var(--fmono);font-size:10px;color:var(--muted);margin-bottom:6px;flex-wrap:wrap}
+.profile-meta-row a{color:var(--accent2)}
+.profile-meta-row span{display:flex;align-items:center;gap:4px}
+
+/* ── DM POLLS ── */
+.dm-poll{background:var(--s2);border:1px solid var(--border);border-radius:var(--r2);padding:12px;margin-top:6px;min-width:200px}
+.dm-poll-q{font-weight:600;font-size:13px;margin-bottom:8px}
+.dm-poll-opt{display:flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid var(--border);border-radius:var(--r);margin-bottom:5px;cursor:pointer;position:relative;overflow:hidden;transition:border-color .15s;font-size:13px}
+.dm-poll-opt:hover{border-color:var(--accent2)}
+.dm-poll-opt.voted{border-color:var(--accent)}
+.dm-poll-bg{position:absolute;inset:0;background:rgba(212,255,0,.07);transform-origin:left;pointer-events:none}
+.dm-poll-label{position:relative;z-index:1;flex:1}
+.dm-poll-pct{font-family:var(--fmono);font-size:10px;color:var(--muted);position:relative;z-index:1}
+.dm-poll-compose{margin-top:8px;border:1px solid var(--border);border-radius:var(--r2);padding:10px;background:var(--s2)}
+.dm-poll-compose-title{font-family:var(--fmono);font-size:9px;color:var(--muted);letter-spacing:.18em;margin-bottom:8px;text-transform:uppercase}
+
 </style>
 </head>
 <body>
 
 <div id="offline-bar">YOU'RE OFFLINE — some features may not work</div>
+
+<!-- STORY VIEWER -->
+<div id="story-viewer" class="hidden">
+  <div class="sv-top">
+    <div class="sv-bars" id="sv-bars"></div>
+    <div class="sv-header">
+      <div class="sv-av" id="sv-av"></div>
+      <div>
+        <div class="sv-name" id="sv-name"></div>
+        <span class="sv-time" id="sv-time"></span>
+      </div>
+      <span class="sv-viewers" id="sv-viewers" onclick="showStoryViewers()"></span>
+      <button class="sv-close" onclick="closeStoryViewer()">✕</button>
+    </div>
+  </div>
+  <div class="sv-nav">
+    <div class="sv-nav-left" onclick="prevStory()"></div>
+    <div class="sv-nav-right" onclick="nextStory()"></div>
+  </div>
+  <img id="sv-img" class="sv-media" style="display:none" src="">
+  <video id="sv-vid" class="sv-media" style="display:none" loop playsinline></video>
+  <div class="sv-caption" id="sv-caption"></div>
+  <div class="sv-reply">
+    <input type="text" id="sv-reply-inp" placeholder="reply to story..." autocomplete="off">
+    <button onclick="sendStoryReply()">→</button>
+  </div>
+</div>
 
 <!-- LIGHTBOX -->
 <div id="lightbox" class="hidden" onclick="closeLightbox()">
@@ -699,6 +849,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 
   <!-- FEED -->
   <div id="view-feed" class="view hidden">
+    <div class="stories-bar" id="stories-bar"></div>
     <div class="compose-box" id="main-compose">
       <div class="compose-top">
         <div class="compose-av" id="compose-av"></div>
@@ -1335,6 +1486,7 @@ async function loadFeed() {
   }
   resetFeedPagination();
   document.getElementById('feed-posts').innerHTML='<p class="empty-state" style="padding:20px 0">loading...</p>';
+  loadStoriesBar();
   await loadMoreFeed();
 }
 
@@ -1361,103 +1513,106 @@ function postHTML(post, author, liked, isFollowing, votedOption, myReactions) {
   const isAdmin=ADMIN_IDS.includes(currentUser.id)||ADMIN_USERNAMES.includes(currentUser.username);
   const initial=(author.display_name||'?')[0].toUpperCase();
   const avEl=author.avatar_url
-    ?`<img src="${esc(author.avatar_url)}" class="post-avatar" onclick="showView('profile','${author.id}')" style="display:block">`
-    :`<div class="post-avatar" onclick="showView('profile','${author.id}')">${initial}</div>`;
+    ?`<img src="${esc(author.avatar_url)}" class="ig-post-avatar" onclick="showView('profile','${author.id}')" style="display:block">`
+    :`<div class="ig-post-avatar" onclick="showView('profile','${author.id}')">${initial}</div>`;
 
   const vbadge=author.verified?`<span class="post-verified" title="verificado">✓</span>`:'';
   const botBadge=isBot?`<span class="post-bot-badge">BOT</span>`:'';
 
-  let bodyHTML='';
-  if(post.repost_of){
-    bodyHTML+=`<div class="repost-label">↻ REPOST</div>`;
-    if(post.content) bodyHTML+=`<div class="post-body">${renderHashtags(post.content)}</div>`;
-    const rq=post.repost_data;
-    if(rq) bodyHTML+=`<div class="quoted-post"><b>${esc(rq.display_name||'?')}</b> <span style="font-family:var(--fmono);font-size:9px;color:var(--muted)">@${esc(rq.username||'?')}</span><div class="post-body" style="margin-top:6px">${renderHashtags(rq.content||'')}</div></div>`;
-  } else {
-    bodyHTML=`<div class="post-body">${renderHashtags(post.content||'')}</div>`;
+  // Media
+  const imgs=post.image_urls?(Array.isArray(post.image_urls)?post.image_urls:JSON.parse(post.image_urls||'[]')):[];
+  let mediaHTML='';
+  if(imgs.length===1){
+    mediaHTML=`<div class="ig-post-media"><img src="${esc(imgs[0])}" loading="lazy" onclick="openLightbox('${esc(imgs[0])}')"></div>`;
+  } else if(imgs.length>1){
+    const cls=['','','two','three','three'][Math.min(imgs.length,4)];
+    mediaHTML=`<div class="ig-post-media"><div class="ig-post-media-multi ${cls}">${imgs.slice(0,4).map(u=>`<img src="${esc(u)}" loading="lazy" onclick="openLightbox('${esc(u)}')">`).join('')}</div></div>`;
+  } else if(post.image_url){
+    mediaHTML=`<div class="ig-post-media"><img src="${esc(post.image_url)}" loading="lazy" onclick="openLightbox('${esc(post.image_url)}')"></div>`;
   }
 
-  // Images (array stored as JSON or single URL)
-  const imgs=post.image_urls?(Array.isArray(post.image_urls)?post.image_urls:JSON.parse(post.image_urls||'[]')):[];
-  if(imgs.length) bodyHTML+=imgsGrid(imgs);
-  else if(post.image_url) bodyHTML+=`<div class="post-imgs one"><img src="${esc(post.image_url)}" class="post-img" onclick="openLightbox('${esc(post.image_url)}')"></div>`;
+  // Caption / repost body
+  let captionHTML='';
+  if(post.repost_of){
+    captionHTML=`<div class="ig-post-caption"><b onclick="showView('profile','${author.id}')">${esc(author.display_name)}</b> ↻ REPOST ${post.content?renderHashtags(post.content):''}`;
+    const rq=post.repost_data;
+    if(rq) captionHTML+=`<div class="quoted-post" style="margin-top:8px"><b>${esc(rq.display_name||'?')}</b> <span style="font-family:var(--fmono);font-size:9px;color:var(--muted)">@${esc(rq.username||'?')}</span><div style="margin-top:4px;font-size:13px;color:var(--sub)">${renderHashtags(rq.content||'')}</div></div>`;
+    captionHTML+=`</div>`;
+  } else if(post.content){
+    captionHTML=`<div class="ig-post-caption"><b onclick="showView('profile','${author.id}')">${esc(author.display_name)}</b> ${renderHashtags(post.content)}</div>`;
+  }
 
   // Poll
+  let pollHTML='';
   if(post.poll_a&&post.poll_b){
     const totalV=(post.poll_votes_a||0)+(post.poll_votes_b||0);
     const pctA=totalV?Math.round((post.poll_votes_a||0)/totalV*100):50;
     const pctB=100-pctA;
     const vA=votedOption==='a',vB=votedOption==='b';
-    bodyHTML+=`<div class="poll-widget">
-      <div class="poll-option${vA?' voted':''}" onclick="votePoll('${post.id}','a',${!!votedOption})">
-        <div class="poll-bg" style="width:${vA||vB?pctA:0}%"></div>
-        <span class="poll-label">${esc(post.poll_a)}</span>
-        ${votedOption?`<span class="poll-pct">${pctA}%</span>`:''}
-      </div>
-      <div class="poll-option${vB?' voted':''}" onclick="votePoll('${post.id}','b',${!!votedOption})">
-        <div class="poll-bg" style="width:${vA||vB?pctB:0}%"></div>
-        <span class="poll-label">${esc(post.poll_b)}</span>
-        ${votedOption?`<span class="poll-pct">${pctB}%</span>`:''}
-      </div>
-      <div style="font-family:var(--fmono);font-size:9px;color:var(--muted);margin-top:4px;letter-spacing:.08em">${totalV} votes</div>
-    </div>`;
+    pollHTML=`<div class="poll-widget" style="margin:0 14px 10px"><div class="poll-option${vA?' voted':''}" onclick="votePoll('${post.id}','a',${!!votedOption})"><div class="poll-bg" style="width:${vA||vB?pctA:0}%"></div><span class="poll-label">${esc(post.poll_a)}</span>${votedOption?`<span class="poll-pct">${pctA}%</span>`:''}</div><div class="poll-option${vB?' voted':''}" onclick="votePoll('${post.id}','b',${!!votedOption})"><div class="poll-bg" style="width:${vA||vB?pctB:0}%"></div><span class="poll-label">${esc(post.poll_b)}</span>${votedOption?`<span class="poll-pct">${pctB}%</span>`:''}</div><div style="font-family:var(--fmono);font-size:9px;color:var(--muted);margin-top:4px;letter-spacing:.08em">${totalV} votes</div></div>`;
   }
 
-  const replyCount=post.reply_count||0;
-  // Reactions display
-  const allReactions=post.reactions?(typeof post.reactions==='object'?post.reactions:JSON.parse(post.reactions)):{};
-  const REACTION_EMOJIS_POST=['🔥','❤️','😂','😮','😢','👏'];
-  let reactionsHTML='';
-  const rEntries=Object.entries(allReactions).filter(([,v])=>v>0);
-  if(rEntries.length) reactionsHTML=`<div class="post-reactions">${rEntries.map(([e,n])=>`<span class="reaction-pill${(myReactions||[]).includes(e)?' mine':''}" onclick="reactToPost('${post.id}','${e}',event)">${e}<span class="rc">${n}</span></span>`).join('')}</div>`;
-  // Anon badge
-  const anonLabel=post.is_anon?`<span class="anon-badge">anon</span>`:'';
-  // Event card
+  // Event
   let eventHTML='';
   if(post.event_title&&post.event_date){
     const going=post.event_going||0;
     const iGo=(myReactions||[]).includes('event_going');
-    eventHTML=`<div class="event-card"><div class="event-date">📅 ${new Date(post.event_date).toLocaleDateString('en',{weekday:'short',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</div><div class="event-title">${esc(post.event_title)}</div><div style="display:flex;align-items:center;gap:10px"><span class="event-going">${going} going</span><button class="btn-going${iGo?' going':''}" onclick="toggleEventGoing('${post.id}',${iGo})">${iGo?'✓ going':'+ going'}</button></div></div>`;
+    eventHTML=`<div class="event-card" style="margin:0 14px 10px"><div class="event-date">📅 ${new Date(post.event_date).toLocaleDateString('en',{weekday:'short',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</div><div class="event-title">${esc(post.event_title)}</div><div style="display:flex;align-items:center;gap:10px"><span class="event-going">${going} going</span><button class="btn-going${iGo?' going':''}" onclick="toggleEventGoing('${post.id}',${iGo})">${iGo?'✓ going':'+ going'}</button></div></div>`;
   }
+
+  // Reactions
+  const allReactions=post.reactions?(typeof post.reactions==='object'?post.reactions:JSON.parse(post.reactions)):{};
+  const rEntries=Object.entries(allReactions).filter(([,v])=>v>0);
+  const reactionsHTML=rEntries.length?`<div class="ig-post-reactions">${rEntries.map(([e,n])=>`<span class="reaction-pill${(myReactions||[]).includes(e)?' mine':''}" onclick="reactToPost('${post.id}','${e}',event)">${e}<span class="rc">${n}</span></span>`).join('')}</div>`:'';
+
+  const replyCount=post.reply_count||0;
+  const anonLabel=post.is_anon?`<span class="anon-badge">anon</span>`:'';
+  const pinnedLabel=post.pinned?`<div class="pin-label">📌 pinned</div>`:'';
+
+  // Compose-av for comment row
+  const myAv=currentUser.avatar_url?`<img src="${esc(currentUser.avatar_url)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block">`:`<span style="font-family:var(--ftitle);font-size:10px">${(currentUser.display_name||'?')[0].toUpperCase()}</span>`;
+
   return `
-  <div class="post${isBlocked(post.author_id)?" blocked-post":""}" id="post-${post.id}">
-    ${author.banned?'<div style="font-family:var(--fmono);font-size:9px;color:var(--danger);margin-bottom:8px;letter-spacing:.1em">ACCOUNT SUSPENDED</div>':''}
-    <div class="post-header">
+  <div class="ig-post${isBlocked(post.author_id)?' blocked-post':''}" id="post-${post.id}">
+    ${author.banned?'<div style="font-family:var(--fmono);font-size:9px;color:var(--danger);padding:6px 14px;letter-spacing:.1em">ACCOUNT SUSPENDED</div>':''}
+    ${pinnedLabel}
+    <div class="ig-post-header">
       ${avEl}
-      <div class="post-meta">
-        <div class="post-top">
-          <span class="post-name" onclick="${post.is_anon?'':`showView('profile','${author.id}')`}">${post.is_anon?'Anonymous':esc(author.display_name||'?')}</span>${anonLabel}
-          ${vbadge}${botBadge}
-          <span class="post-time">${timeAgo(post.created_at)}</span>${post.audience&&post.audience!=="everyone"?`<span class="audience-badge ${post.audience==='followers'?'aud-followers':'aud-verified'}">${post.audience==='followers'?'👥':'✓'}</span>`:""}
-        </div>
-        <div class="post-handle">@${esc(author.username||'?')}</div>
-        <div class="post-uid">ID: ${esc(post.author_id)}</div>
+      <div class="ig-post-meta">
+        <div class="ig-post-name" onclick="${post.is_anon?'':`showView('profile','${author.id}')`}">${post.is_anon?'Anonymous':esc(author.display_name||'?')} ${vbadge}${botBadge}${anonLabel}${post.audience&&post.audience!=='everyone'?`<span class="audience-badge ${post.audience==='followers'?'aud-followers':'aud-verified'}">${post.audience==='followers'?'👥':'✓'}</span>`:''}</div>
+        <div class="ig-post-handle">@${esc(author.username||'?')}</div>
+      </div>
+      <span class="ig-post-time">${timeAgo(post.created_at)}</span>
+      <div style="position:relative;margin-left:6px">
+        ${!isOwn?`<button class="ig-act" onclick="openReport('post','${post.id}')" title="report" style="font-size:14px">⚑</button>`:''}
+        ${(isOwn||isAdmin)?`<button class="ig-act" onclick="deletePost('${post.id}')" title="delete" style="font-size:14px">🗑</button>`:''}
+        ${isOwn?`<button class="ig-act" onclick="togglePinPost('${post.id}',${!!post.pinned})" title="${post.pinned?'unpin':'pin'}" style="font-size:14px">${post.pinned?'📌':'📍'}</button>`:''}
       </div>
     </div>
-    ${eventHTML}${bodyHTML}
+    ${eventHTML}${mediaHTML}
+    <div class="ig-post-actions">
+      <button class="ig-act like${liked?' liked':''}" onclick="toggleLike('${post.id}',${liked})" style="font-size:22px">${liked?'♥':'♡'}</button>
+      <button class="ig-act" onclick="toggleReplies('${post.id}')" style="font-size:20px">💬</button>
+      <button class="ig-act" onclick="openRepost('${post.id}')" style="font-size:20px">↻</button>
+      <button class="ig-act" onclick="toggleReactionPicker('${post.id}',event)" style="font-size:20px">😊</button>
+      <div class="reaction-picker-post" id="rp-${post.id}">${'🔥❤️😂😮😢👏'.split('').map(e=>`<span class="rp-emoji" onclick="reactToPost('${post.id}','${e}',event)">${e}</span>`).join('')}</div>
+      ${!isOwn&&!isBot?`<button class="ig-act ig-act-right" onclick="toggleFollow('${author.id}',${isFollowing})" style="font-size:13px;color:${isFollowing?'var(--success)':'var(--accent2)'}">${isFollowing?'✓':'+'}</button>`:`<span class="ig-act-right"></span>`}
+    </div>
+    <div class="ig-post-likes"><span id="lc-${post.id}">${post.likes_count||0}</span> likes</div>
+    ${pollHTML}${captionHTML}
     ${reactionsHTML}
-    <div class="post-actions" style="position:relative">
-      <button class="act-btn like${liked?' liked':''}" onclick="toggleLike('${post.id}',${liked})">
-        ${liked?'♥':'♡'} <span id="lc-${post.id}">${post.likes_count||0}</span>
-      </button>
-      <button class="act-btn" onclick="toggleReactionPicker('${post.id}',event)" style="font-size:14px;letter-spacing:0">😊</button>
-      <div class="reaction-picker-post" id="rp-${post.id}">
-        ${'🔥❤️😂😮😢👏'.split('').map(e=>`<span class="rp-emoji" onclick="reactToPost('${post.id}','${e}',event)">${e}</span>`).join('')}
-      </div>
-      <button class="act-btn comment" onclick="toggleReplies('${post.id}')">💬 ${replyCount}</button>
-      <button class="act-btn repost-act" onclick="openRepost('${post.id}')">↻</button>
-      ${!isOwn&&!isBot?`<button class="act-btn" onclick="toggleFollow('${author.id}',${isFollowing})">${isFollowing?'✓ sig':'+ follow'}</button>`:''}
-      ${!isOwn&&!isBot?`<button class="act-btn" onclick="startDM('${author.id}')">message</button>`:''}
-      ${!isOwn?`<button class="act-btn danger" onclick="openReport('post','${post.id}')">⚑</button>`:''}
-      ${(isOwn||isAdmin)?`<button class="act-btn delete-btn" onclick="deletePost('${post.id}')">🗑</button>`:''}
+    ${replyCount?`<div class="ig-view-comments" onclick="toggleReplies('${post.id}')">View all ${replyCount} comments</div>`:''}
+    <div class="ig-post-comment-row">
+      <div class="ig-comment-av">${myAv}</div>
+      <input class="ig-comment-inp" placeholder="Add a comment..." onkeydown="if(event.key==='Enter'){quickComment('${post.id}',this)}">
     </div>
     <div id="replies-${post.id}" class="hidden">
-      <div class="replies-wrap">
+      <div class="replies-wrap" style="padding:0 14px 10px">
         <div id="replies-list-${post.id}"></div>
-        <div class="reply-compose">
-          <div class="compose-av" style="width:28px;height:28px;font-size:12px" id="rc-av-${post.id}"></div>
-          <textarea id="reply-inp-${post.id}" rows="1" placeholder="write a reply..." style="min-height:34px"></textarea>
-          <button onclick="submitReply('${post.id}')" style="align-self:flex-end;padding:6px 12px">→</button>
+        <div class="reply-compose" style="padding:6px 0 0">
+          <div class="compose-av" style="width:26px;height:26px;font-size:11px" id="rc-av-${post.id}"></div>
+          <textarea id="reply-inp-${post.id}" rows="1" placeholder="write a reply..." style="min-height:32px;font-size:13px"></textarea>
+          <button onclick="submitReply('${post.id}')" style="align-self:flex-end;padding:5px 10px;font-size:12px">→</button>
         </div>
       </div>
     </div>
@@ -1466,7 +1621,7 @@ function postHTML(post, author, liked, isFollowing, votedOption, myReactions) {
 
 // ── LIKES (real count from DB, no drift) ─────────────────────
 async function toggleLike(postId, wasLiked) {
-  const btn=document.querySelector(`#post-${postId} .act-btn.like`);
+  const btn=document.querySelector(`#post-${postId} .ig-act.like`);
   if(!btn) return;
   // Disable while processing to prevent double-clicks
   btn.disabled=true;
@@ -1493,11 +1648,12 @@ async function toggleLike(postId, wasLiked) {
 
   // Update DOM — use dataset instead of setAttribute for onclick
   const nowLiked=!wasLiked;
-  btn.dataset.liked=nowLiked?'1':'0';
-  btn.innerHTML=`${nowLiked?'♥':'♡'} <span id="lc-${postId}">${trueCount}</span>`;
-  btn.className=`act-btn like${nowLiked?' liked':''}`;
+  btn.innerHTML=nowLiked?'♥':'♡';
+  btn.className=`ig-act like${nowLiked?' liked':''}`;
   btn.onclick=()=>toggleLike(postId,nowLiked);
   btn.disabled=false;
+  const lcEl=document.getElementById('lc-'+postId);
+  if(lcEl) lcEl.textContent=trueCount;
 }
 
 async function votePoll(postId,option,alreadyVoted){
@@ -1788,6 +1944,18 @@ async function loadProfile(userId,tab='posts'){
   const vbadge=p.verified?`<span class="profile-verified">✓</span>`:'';
   const isAdminUser=ADMIN_IDS.includes(p.id)||p.username===ADMIN_USER;
 
+  // Extra meta row: website, location, timezone
+  let metaRow='';
+  if(p.website||p.location||p.timezone){
+    metaRow='<div class="profile-meta-row">';
+    if(p.website) metaRow+=`<span>🔗 <a href="${esc(p.website)}" target="_blank" rel="noopener">${esc(p.website.replace(/^https?:\/\//,''))}</a></span>`;
+    if(p.location) metaRow+=`<span>📍 ${esc(p.location)}</span>`;
+    if(p.timezone) metaRow+=`<span>🕐 ${esc(p.timezone)}</span>`;
+    metaRow+='</div>';
+  }
+
+  // Now playing
+  const npHTML=p.now_playing?`<div class="now-playing"><span class="np-icon">🎵</span><span class="np-text"><b>listening to</b> ${esc(p.now_playing)}</span></div>`:'';
 
   c.innerHTML=`
     <div style="position:relative">
@@ -1808,15 +1976,18 @@ async function loadProfile(userId,tab='posts'){
       <div class="profile-uid">ID: <b>${esc(p.id)}</b> · joined ${new Date(p.created_at).toLocaleDateString('en',{month:'short',year:'numeric'})}</div>
       <div class="profile-badges" id="badges-${p.id}"></div>
       ${p.bio?`<div class="profile-bio">${linkifyBio(p.bio)}</div>`:''}
+      ${metaRow}
+      ${npHTML}
       <div class="profile-stats">
         <span><b>${pc||0}</b> posts</span>
         <span onclick="loadFollowList('${userId}','followers')"><b>${flrC||0}</b> followers</span>
         <span onclick="loadFollowList('${userId}','following')"><b>${flgC||0}</b> following</span>
       </div>
       <div class="profile-btns">
-        ${isOwn?`<button onclick="openEdit()">edit profile</button>`:`<button onclick="toggleFollow('${p.id}',${isFollowing})">${isFollowing?'✓ following':'+ follow'}</button><button onclick="startDM('${p.id}')">dm</button><button class="danger" onclick="openReport('user','${p.id}')">⚑</button><button class="danger" onclick="toggleBlockUser('${p.id}','${esc(p.username)}')" id="block-btn-${p.id}">${isBlocked(p.id)?'unblock':'block'}</button>`}
+        ${isOwn?`<button onclick="openEdit()">edit profile</button><button onclick="openStoryUpload()">+ story</button>`:`<button onclick="toggleFollow('${p.id}',${isFollowing})">${isFollowing?'✓ following':'+ follow'}</button><button onclick="startDM('${p.id}')">dm</button><button class="danger" onclick="openReport('user','${p.id}')">⚑</button><button class="danger" onclick="toggleBlockUser('${p.id}','${esc(p.username)}')" id="block-btn-${p.id}">${isBlocked(p.id)?'unblock':'block'}</button>`}
       </div>
     </div>
+    <div id="profile-highlights-wrap"></div>
     <div class="profile-tabs">
       <button class="ptab${tab==='posts'?' active':''}" onclick="loadProfile('${userId}','posts')">posts</button>
       <button class="ptab${tab==='likes'?' active':''}" onclick="loadProfile('${userId}','likes')">likes</button>
@@ -1824,13 +1995,19 @@ async function loadProfile(userId,tab='posts'){
     <div id="profile-posts-content"></div>`;
 
   loadProfileBadges(userId,pc||0,flrC||0).then(badges=>{ const el=document.getElementById('badges-'+userId); if(el&&badges.length) el.innerHTML=badges.map(b=>`<span class="pbadge ${b.cls}">${b.label}</span>`).join(''); });
+  loadProfileHighlights(userId, document.getElementById('profile-highlights-wrap'));
+
   const pc2=document.getElementById('profile-posts-content');
   if(tab==='posts'){
-    const{data:posts}=await sb.from('posts').select('*, profiles!posts_author_id_fkey(*)').eq('author_id',userId).order('created_at',{ascending:false}).limit(30);
+    const{data:allPosts}=await sb.from('posts').select('*, profiles!posts_author_id_fkey(*)').eq('author_id',userId).order('created_at',{ascending:false}).limit(30);
     let liked=new Set();
-    if(posts?.length){ const{data:ml}=await sb.from('likes').select('post_id').eq('user_id',currentUser.id).in('post_id',posts.map(x=>x.id)); if(ml) ml.forEach(l=>liked.add(l.post_id)); }
-    await loadMyReactions((posts||[]).map(x=>x.id));
-    pc2.innerHTML=posts?.length?posts.map(x=>postHTML(x,p,liked.has(x.id),false,undefined,_postReactions[x.id])).join(''):'<p class="empty-state">no posts</p>';
+    if(allPosts?.length){ const{data:ml}=await sb.from('likes').select('post_id').eq('user_id',currentUser.id).in('post_id',allPosts.map(x=>x.id)); if(ml) ml.forEach(l=>liked.add(l.post_id)); }
+    await loadMyReactions((allPosts||[]).map(x=>x.id));
+    // Show pinned first
+    const pinned=(allPosts||[]).filter(x=>x.pinned);
+    const rest=(allPosts||[]).filter(x=>!x.pinned);
+    const sorted=[...pinned,...rest];
+    pc2.innerHTML=sorted.length?sorted.map(x=>postHTML(x,p,liked.has(x.id),false,undefined,_postReactions[x.id])).join(''):'<p class="empty-state">no posts</p>';
   } else {
     const{data:likedPosts}=await sb.from('likes').select('post_id').eq('user_id',userId).limit(30);
     if(!likedPosts?.length){pc2.innerHTML='<p class="empty-state">no likes yet</p>';return;}
@@ -1840,6 +2017,8 @@ async function loadProfile(userId,tab='posts'){
     pc2.innerHTML=posts?.length?posts.map(x=>postHTML(x,x.profiles,liked.has(x.id),false,undefined,_postReactions[x.id])).join(''):'<p class="empty-state">no likes</p>';
   }
 }
+
+
 
 async function loadFollowList(userId,type){
   const pc=document.getElementById('profile-posts-content'); if(!pc) return;
@@ -1894,9 +2073,13 @@ function openEdit(){
   document.getElementById('e-bio').value=currentUser.bio||'';
   document.getElementById('e-avatar').value=currentUser.avatar_url||'';
   document.getElementById('e-banner').value=currentUser.banner_url||'';
+  document.getElementById('e-website').value=currentUser.website||'';
+  document.getElementById('e-location').value=currentUser.location||'';
+  document.getElementById('e-timezone').value=currentUser.timezone||'';
+  document.getElementById('e-nowplaying').value=currentUser.now_playing||'';
   document.getElementById('e-pass').value='';
   const m=document.getElementById('edit-modal');
-  document.body.appendChild(m); // ensure it's a direct child of body
+  document.body.appendChild(m);
   m.classList.remove('hidden');
   m.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:100%;background:rgba(0,0,0,.85);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px';
 }
@@ -1906,16 +2089,18 @@ async function saveProfile(){
   const bio=document.getElementById('e-bio').value.trim();
   const avatar_url=document.getElementById('e-avatar').value.trim();
   const banner_url=document.getElementById('e-banner').value.trim();
+  const website=document.getElementById('e-website').value.trim();
+  const location=document.getElementById('e-location').value.trim();
+  const timezone=document.getElementById('e-timezone').value;
+  const now_playing=document.getElementById('e-nowplaying').value.trim();
   const newPass=document.getElementById('e-pass').value;
   if(!display_name){setStatus('name cannot be empty','err');return;}
-  const updates={display_name,bio,avatar_url,banner_url};
+  const updates={display_name,bio,avatar_url,banner_url,website,location,timezone,now_playing};
   if(newPass){
     if(newPass.length<6){setStatus('password needs 6+ chars','err');return;}
     updates.password_hash=await hashPass(newPass);
   }
-  console.log('[ORZI] saving profile', updates);
   const{data,error}=await sb.from('profiles').update(updates).eq('id',currentUser.id).select().single();
-  console.log('[ORZI] save result data:', data, 'error:', error);
   if(error){setStatus('error: '+error.message,'err');return;}
   if(!data){setStatus('no response — check Supabase policies','err');return;}
   currentUser=data;
@@ -3545,23 +3730,118 @@ function closeReelComments(){
   document.getElementById('rcd-dimmer')?.classList.remove('active');
 }
 
+// ══════════════════════════════════════════════════════════════
+// REEL COMMENTS — LIKES · REPLIES · MENTIONS
+// ══════════════════════════════════════════════════════════════
+let _rcdReplyTo=null;
+
 async function loadReelComments(reelId){
   const list=document.getElementById('rcd-list'); if(!list) return;
   list.innerHTML='<p style="font-family:var(--fmono);font-size:10px;color:var(--muted);text-align:center;padding:20px">loading...</p>';
-  const{data:comments}=await sb.from('reel_comments').select('*, profiles!reel_comments_author_id_fkey(display_name,username,avatar_url)').eq('reel_id',reelId).order('created_at',{ascending:true}).limit(50);
+  // Top-level comments only
+  const{data:comments}=await sb.from('reel_comments')
+    .select('*, profiles!reel_comments_author_id_fkey(display_name,username,avatar_url)')
+    .eq('reel_id',reelId).is('reply_to',null)
+    .order('created_at',{ascending:true}).limit(50);
   if(!comments?.length){list.innerHTML='<p style="font-family:var(--fmono);font-size:10px;color:var(--muted);text-align:center;padding:20px">no comments yet — say something!</p>';return;}
-  list.innerHTML=comments.map(cm=>{
-    const av=cm.profiles?.avatar_url?`<img src="${esc(cm.profiles.avatar_url)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block">`:`<span style="font-family:var(--ftitle);font-size:11px">${(cm.profiles?.display_name||'?')[0].toUpperCase()}</span>`;
-    return `<div class="rcd-comment">
-      <div class="rcd-av">${av}</div>
+  // Fetch replies
+  const ids=comments.map(c=>c.id);
+  const{data:replies}=await sb.from('reel_comments')
+    .select('*, profiles!reel_comments_author_id_fkey(display_name,username,avatar_url)')
+    .in('reply_to',ids).order('created_at',{ascending:true});
+  const replyMap={};
+  (replies||[]).forEach(r=>{ if(!replyMap[r.reply_to]) replyMap[r.reply_to]=[]; replyMap[r.reply_to].push(r); });
+  list.innerHTML=comments.map(cm=>_rcdCommentHTML(cm, replyMap[cm.id]||[], reelId)).join('');
+  list.scrollTop=list.scrollHeight;
+}
+
+function _rcdCommentHTML(cm, replies, reelId){
+  const av=cm.profiles?.avatar_url
+    ?`<img src="${esc(cm.profiles.avatar_url)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block">`
+    :`<span style="font-family:var(--ftitle);font-size:11px">${(cm.profiles?.display_name||'?')[0].toUpperCase()}</span>`;
+  const liked=(cm.liked_by||[]).includes(currentUser.id);
+  const canDel=cm.author_id===currentUser.id||ADMIN_IDS.includes(currentUser.id)||ADMIN_USERNAMES.includes(currentUser.username);
+  const txt=_rcdRenderMentions(cm.content||'');
+  let html=`<div class="rcd-comment" id="rcd-${cm.id}">
+    <div class="rcd-av">${av}</div>
+    <div class="rcd-body">
+      <div class="rcd-name">${esc(cm.profiles?.display_name||'?')} <span style="font-family:var(--fmono);font-size:9px;color:var(--muted)">@${esc(cm.profiles?.username||'?')}</span></div>
+      <div class="rcd-text">${txt}</div>
+      <div class="rcd-actions">
+        <span class="rcd-time">${timeAgo(cm.created_at)}</span>
+        <button class="rcd-like-btn${liked?' liked':''}" onclick="toggleRcdLike('${cm.id}','${reelId}',${liked})">${liked?'♥':'♡'} <span id="rcl-${cm.id}">${cm.likes||0}</span></button>
+        <button class="rcd-reply-btn" onclick="setRcdReply('${cm.id}','${esc(cm.profiles?.username||'')}')">reply</button>
+        ${canDel?`<button class="rcd-reply-btn" style="color:var(--danger);margin-left:4px" onclick="deleteRcdComment('${cm.id}','${reelId}')">del</button>`:''}
+      </div>
+    </div>
+  </div>`;
+  replies.forEach(r=>{
+    const rav=r.profiles?.avatar_url
+      ?`<img src="${esc(r.profiles.avatar_url)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block">`
+      :`<span style="font-family:var(--ftitle);font-size:10px">${(r.profiles?.display_name||'?')[0].toUpperCase()}</span>`;
+    const rliked=(r.liked_by||[]).includes(currentUser.id);
+    const rcanDel=r.author_id===currentUser.id||ADMIN_IDS.includes(currentUser.id)||ADMIN_USERNAMES.includes(currentUser.username);
+    html+=`<div class="rcd-comment reply" id="rcd-${r.id}">
+      <div class="rcd-av" style="width:26px;height:26px">${rav}</div>
       <div class="rcd-body">
-        <div class="rcd-name">${esc(cm.profiles?.display_name||'?')} <span style="font-family:var(--fmono);font-size:9px;color:var(--muted)">@${esc(cm.profiles?.username||'?')}</span></div>
-        <div class="rcd-text">${esc(cm.content)}</div>
-        <div class="rcd-time">${timeAgo(cm.created_at)}</div>
+        <div class="rcd-name" style="font-size:11px">${esc(r.profiles?.display_name||'?')}</div>
+        <div class="rcd-text">${_rcdRenderMentions(r.content||'')}</div>
+        <div class="rcd-actions">
+          <span class="rcd-time">${timeAgo(r.created_at)}</span>
+          <button class="rcd-like-btn${rliked?' liked':''}" onclick="toggleRcdLike('${r.id}','${reelId}',${rliked})">${rliked?'♥':'♡'} <span id="rcl-${r.id}">${r.likes||0}</span></button>
+          ${rcanDel?`<button class="rcd-reply-btn" style="color:var(--danger);margin-left:4px" onclick="deleteRcdComment('${r.id}','${reelId}')">del</button>`:''}
+        </div>
       </div>
     </div>`;
-  }).join('');
-  list.scrollTop=list.scrollHeight;
+  });
+  return html;
+}
+
+function _rcdRenderMentions(text){
+  return esc(text).replace(/@([a-zA-Z0-9_]+)/g,(_,u)=>`<span class="rcd-mention" style="cursor:pointer" onclick="showView('profile','${u}')">@${u}</span>`);
+}
+
+async function toggleRcdLike(cmId, reelId, wasLiked){
+  const{data:cm}=await sb.from('reel_comments').select('likes,liked_by').eq('id',cmId).single();
+  if(!cm) return;
+  const liked=(cm.liked_by||[]).includes(currentUser.id);
+  const newLikedBy=liked?(cm.liked_by||[]).filter(id=>id!==currentUser.id):[...(cm.liked_by||[]),currentUser.id];
+  const newCount=Math.max(0,(cm.likes||0)+(liked?-1:1));
+  await sb.from('reel_comments').update({likes:newCount,liked_by:newLikedBy}).eq('id',cmId);
+  const btn=document.querySelector(`#rcd-${cmId} .rcd-like-btn`);
+  if(btn){
+    const nowLiked=!liked;
+    btn.className=`rcd-like-btn${nowLiked?' liked':''}`;
+    btn.innerHTML=`${nowLiked?'♥':'♡'} <span id="rcl-${cmId}">${newCount}</span>`;
+    btn.onclick=()=>toggleRcdLike(cmId,reelId,nowLiked);
+  }
+}
+
+async function deleteRcdComment(cmId, reelId){
+  await sb.from('reel_comments').delete().eq('id',cmId);
+  document.getElementById('rcd-'+cmId)?.remove();
+  const{count}=await sb.from('reel_comments').select('id',{count:'exact',head:true}).eq('reel_id',reelId);
+  await sb.from('reels').update({comment_count:count||0}).eq('id',reelId);
+  const countEl=document.getElementById('rc-count-'+reelId);
+  if(countEl) countEl.textContent=count||0;
+}
+
+function setRcdReply(cmId, username){
+  _rcdReplyTo=cmId;
+  let bar=document.getElementById('rcd-reply-bar-el');
+  if(!bar){
+    bar=document.createElement('div'); bar.id='rcd-reply-bar-el'; bar.className='rcd-reply-bar';
+    const compose=document.querySelector('.rcd-compose');
+    if(compose) compose.parentNode.insertBefore(bar,compose);
+  }
+  bar.innerHTML=`<span>↩ replying to @${esc(username)}</span><button onclick="clearRcdReply()">✕</button>`;
+  const inp=document.getElementById('rcd-inp');
+  if(inp){ inp.value=`@${username} `; inp.focus(); }
+}
+
+function clearRcdReply(){
+  _rcdReplyTo=null;
+  document.getElementById('rcd-reply-bar-el')?.remove();
 }
 
 async function submitReelComment(){
@@ -3570,13 +3850,192 @@ async function submitReelComment(){
   const drawer=document.getElementById('reel-comments-drawer');
   const reelId=drawer?.dataset.reelId; if(!reelId) return;
   inp.value='';
-  await sb.from('reel_comments').insert({reel_id:reelId,author_id:currentUser.id,content});
-  // Update comment count
+  const mentions=[...(content.match(/@([a-zA-Z0-9_]+)/g)||[])].map(m=>m.slice(1));
+  await sb.from('reel_comments').insert({
+    reel_id:reelId, author_id:currentUser.id, content,
+    reply_to:_rcdReplyTo||null, mentions, likes:0, liked_by:[]
+  });
+  clearRcdReply();
   const{count}=await sb.from('reel_comments').select('id',{count:'exact',head:true}).eq('reel_id',reelId);
   await sb.from('reels').update({comment_count:count||0}).eq('id',reelId);
   const countEl=document.getElementById('rc-count-'+reelId);
   if(countEl) countEl.textContent=count||0;
   loadReelComments(reelId);
+}
+
+// ══════════════════════════════════════════════════════════════
+// STORIES
+// ══════════════════════════════════════════════════════════════
+let _svStories=[], _svIdx=0, _svTimer=null;
+const STORY_DURATION=5000;
+
+async function loadStoriesBar(){
+  const bar=document.getElementById('stories-bar'); if(!bar) return;
+  const{data:follows}=await sb.from('follows').select('following_id').eq('follower_id',currentUser.id);
+  const ids=[currentUser.id,...(follows||[]).map(f=>f.following_id)];
+  const since=new Date(Date.now()-24*60*60*1000).toISOString();
+  const{data:stories}=await sb.from('stories')
+    .select('author_id, profiles!stories_author_id_fkey(id,username,display_name,avatar_url)')
+    .in('author_id',ids).gte('created_at',since);
+  const byUser={};
+  (stories||[]).forEach(s=>{ if(!byUser[s.author_id]) byUser[s.author_id]={profile:s.profiles}; });
+  const seen=JSON.parse(localStorage.getItem('ox_seen_stories')||'{}');
+  let html=`<div class="story-pill" onclick="openStoryUpload()">
+    <div class="story-ring add-story"><div class="story-inner" style="font-size:22px;background:none">+</div></div>
+    <span class="story-label">add story</span>
+  </div>`;
+  // own story first
+  if(byUser[currentUser.id]){
+    const p=byUser[currentUser.id].profile||{};
+    const av=p.avatar_url?`<img src="${esc(p.avatar_url)}">`:`<span>${(p.display_name||'?')[0].toUpperCase()}</span>`;
+    html+=`<div class="story-pill" onclick="openStoryViewer('${currentUser.id}')"><div class="story-ring ${seen[currentUser.id]?'seen':''}"><div class="story-inner">${av}</div></div><span class="story-label">you</span></div>`;
+    delete byUser[currentUser.id];
+  }
+  Object.entries(byUser).forEach(([uid,{profile:p}])=>{
+    if(!p) return;
+    const av=p.avatar_url?`<img src="${esc(p.avatar_url)}">`:`<span>${(p.display_name||'?')[0].toUpperCase()}</span>`;
+    html+=`<div class="story-pill" onclick="openStoryViewer('${p.id}')"><div class="story-ring ${seen[uid]?'seen':''}"><div class="story-inner">${av}</div></div><span class="story-label">${esc(p.username||'?')}</span></div>`;
+  });
+  bar.innerHTML=html;
+}
+
+async function openStoryUpload(){
+  const input=document.createElement('input');
+  input.type='file'; input.accept='image/*,video/*';
+  input.onchange=async()=>{
+    const file=input.files[0]; if(!file) return;
+    const caption=prompt('Caption (optional):','')||'';
+    setStatus('uploading story...','');
+    const fname=`story_${currentUser.id}_${Date.now()}`;
+    const{error:ue}=await sb.storage.from('post-images').upload(fname,file,{contentType:file.type,upsert:true});
+    if(ue){setStatus('upload error: '+ue.message,'err');return;}
+    const{data:ud}=sb.storage.from('post-images').getPublicUrl(fname);
+    const mtype=file.type.startsWith('video')?'video':'image';
+    await sb.from('stories').insert({author_id:currentUser.id,media_url:ud.publicUrl,media_type:mtype,caption,viewers:[]});
+    setStatus('story posted ✓','ok');
+    loadStoriesBar();
+  };
+  input.click();
+}
+
+async function openStoryViewer(userId){
+  const since=new Date(Date.now()-24*60*60*1000).toISOString();
+  const{data:stories}=await sb.from('stories')
+    .select('*, profiles!stories_author_id_fkey(id,username,display_name,avatar_url)')
+    .eq('author_id',userId).gte('created_at',since).order('created_at',{ascending:true});
+  if(!stories?.length){setStatus('no active stories','');return;}
+  _svStories=stories; _svIdx=0;
+  const seen=JSON.parse(localStorage.getItem('ox_seen_stories')||'{}');
+  seen[userId]=Date.now(); localStorage.setItem('ox_seen_stories',JSON.stringify(seen));
+  document.getElementById('story-viewer').classList.remove('hidden');
+  document.body.style.overflow='hidden';
+  _renderStory();
+}
+
+function _renderStory(){
+  clearTimeout(_svTimer);
+  const s=_svStories[_svIdx]; if(!s){closeStoryViewer();return;}
+  const p=s.profiles||{};
+  // avatar
+  const svAv=document.getElementById('sv-av');
+  if(svAv){ svAv.innerHTML=p.avatar_url?`<img src="${esc(p.avatar_url)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:(p.display_name||'?')[0].toUpperCase(); }
+  document.getElementById('sv-name').textContent=p.display_name||'?';
+  document.getElementById('sv-time').textContent=timeAgo(s.created_at);
+  document.getElementById('sv-caption').textContent=s.caption||'';
+  // progress bars
+  const bars=document.getElementById('sv-bars');
+  if(bars) bars.innerHTML=_svStories.map((_,i)=>`<div class="sv-bar${i<_svIdx?' done':''}"><div class="sv-bar-fill" id="svb-${i}" style="width:${i<_svIdx?'100%':'0%'}"></div></div>`).join('');
+  // media
+  const img=document.getElementById('sv-img'), vid=document.getElementById('sv-vid');
+  if(s.media_type==='video'){
+    img.style.display='none'; vid.style.display='block'; vid.src=s.media_url; vid.play().catch(()=>{});
+  } else {
+    vid.style.display='none'; vid.pause(); vid.src=''; img.style.display='block'; img.src=s.media_url;
+  }
+  // viewers
+  const vEl=document.getElementById('sv-viewers');
+  if(s.author_id===currentUser.id){
+    vEl.textContent=`👁 ${(s.viewers||[]).length}`; vEl.style.display='';
+  } else {
+    vEl.style.display='none';
+    const viewers=s.viewers||[];
+    if(!viewers.includes(currentUser.id)) sb.from('stories').update({viewers:[...viewers,currentUser.id]}).eq('id',s.id);
+  }
+  // animate bar
+  const fill=document.getElementById('svb-'+_svIdx);
+  if(fill){ void fill.offsetWidth; fill.style.transition=`width ${STORY_DURATION}ms linear`; fill.style.width='100%'; }
+  _svTimer=setTimeout(nextStory, STORY_DURATION);
+}
+
+function nextStory(){ if(_svIdx<_svStories.length-1){_svIdx++;_renderStory();}else closeStoryViewer(); }
+function prevStory(){ clearTimeout(_svTimer); if(_svIdx>0){_svIdx--;_renderStory();}else closeStoryViewer(); }
+
+function closeStoryViewer(){
+  clearTimeout(_svTimer);
+  document.getElementById('story-viewer').classList.add('hidden');
+  document.body.style.overflow='';
+  const vid=document.getElementById('sv-vid'); if(vid){vid.pause();vid.src='';}
+  loadStoriesBar(); // refresh seen rings
+}
+
+async function sendStoryReply(){
+  const inp=document.getElementById('sv-reply-inp'); if(!inp) return;
+  const content=inp.value.trim(); if(!content) return;
+  const s=_svStories[_svIdx]; if(!s) return;
+  inp.value='';
+  await startDM(s.author_id);
+  setStatus('reply sent — open DMs ✓','ok');
+}
+
+// ── STORY HIGHLIGHTS ─────────────────────────────────────────
+async function loadProfileHighlights(userId, container){
+  const{data:highlights}=await sb.from('story_highlights').select('*').eq('author_id',userId).order('created_at',{ascending:true});
+  const isOwn=userId===currentUser.id;
+  if(!highlights?.length&&!isOwn){container.innerHTML='';return;}
+  let html=(highlights||[]).map(h=>`<div class="highlight-pill" onclick="openHighlight('${h.id}')">
+    <div class="highlight-ring">${h.cover_url?`<img src="${esc(h.cover_url)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block">`:'⭐'}</div>
+    <span class="highlight-label">${esc(h.title)}</span>
+  </div>`).join('');
+  if(isOwn) html+=`<div class="highlight-pill" onclick="createHighlight()"><div class="highlight-ring" style="border-style:dashed;font-size:22px;display:flex;align-items:center;justify-content:center">+</div><span class="highlight-label">new</span></div>`;
+  container.innerHTML=`<div class="profile-highlights">${html}</div>`;
+}
+
+async function createHighlight(){
+  const title=prompt('Highlight name:',''); if(!title?.trim()) return;
+  await sb.from('story_highlights').insert({author_id:currentUser.id,title:title.trim()});
+  setStatus('highlight created ✓','ok'); loadProfile(currentUser.id);
+}
+
+async function openHighlight(hId){
+  const{data:h}=await sb.from('story_highlights').select('*').eq('id',hId).single();
+  if(!h||!h.story_ids?.length){setStatus('no stories saved here yet','');return;}
+  const{data:stories}=await sb.from('stories').select('*, profiles!stories_author_id_fkey(id,username,display_name,avatar_url)').in('id',h.story_ids);
+  if(!stories?.length){setStatus('those stories have expired','');return;}
+  _svStories=stories; _svIdx=0;
+  document.getElementById('story-viewer').classList.remove('hidden');
+  document.body.style.overflow='hidden';
+  _renderStory();
+}
+
+// ══════════════════════════════════════════════════════════════
+// PIN POST
+// ══════════════════════════════════════════════════════════════
+async function togglePinPost(postId, wasPinned){
+  await sb.from('posts').update({pinned:!wasPinned}).eq('id',postId).eq('author_id',currentUser.id);
+  setStatus(wasPinned?'post unpinned':'post pinned 📌','ok');
+  loadProfile(currentUser.id);
+}
+
+// ══════════════════════════════════════════════════════════════
+// QUICK COMMENT (IG inline)
+// ══════════════════════════════════════════════════════════════
+async function quickComment(postId, inp){
+  const content=inp.value.trim(); if(!content) return;
+  inp.value='';
+  await sb.from('posts').insert({author_id:currentUser.id,content,reply_to:postId,is_reply:true}).catch(()=>{});
+  const{count}=await sb.from('posts').select('id',{count:'exact',head:true}).eq('reply_to',postId).eq('is_reply',true);
+  await sb.from('posts').update({reply_count:count||0}).eq('id',postId);
+  setStatus('comment added ✓','ok');
 }
 
 async function shareReel(reelId){
@@ -3588,11 +4047,9 @@ async function shareReel(reelId){
     await navigator.clipboard.writeText(url);
     setStatus('link copied ✓','ok');
   }catch(e){
-    // Final fallback: show URL in prompt for manual copy
     prompt('Copy this link:',url);
   }
 }
-// ── UTILS ─────────────────────────────────────────────────────
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function timeAgo(ts) {
   const seconds = Math.floor((Date.now() - new Date(ts)) / 1000);
@@ -3637,6 +4094,25 @@ function setStatus(msg, type = '') {
     <div class="field"><label>bio</label><textarea id="e-bio" rows="2"></textarea></div>
     <div class="field"><label>avatar url</label><input id="e-avatar" type="text" placeholder="https://..."></div>
     <div class="field"><label>banner url</label><input id="e-banner" type="text" placeholder="https://..."></div>
+    <div class="field"><label>🔗 website</label><input id="e-website" type="text" placeholder="https://yoursite.com"></div>
+    <div class="field"><label>📍 location</label><input id="e-location" type="text" placeholder="city, country"></div>
+    <div class="field"><label>🕐 timezone</label>
+      <select id="e-timezone">
+        <option value="">— not set —</option>
+        <option value="UTC">UTC</option>
+        <option value="Europe/Madrid">Europe/Madrid</option>
+        <option value="Europe/London">Europe/London</option>
+        <option value="Europe/Paris">Europe/Paris</option>
+        <option value="America/New_York">America/New_York</option>
+        <option value="America/Los_Angeles">America/Los_Angeles</option>
+        <option value="America/Chicago">America/Chicago</option>
+        <option value="Asia/Tokyo">Asia/Tokyo</option>
+        <option value="Asia/Seoul">Asia/Seoul</option>
+        <option value="Asia/Shanghai">Asia/Shanghai</option>
+        <option value="Australia/Sydney">Australia/Sydney</option>
+      </select>
+    </div>
+    <div class="field"><label>🎵 now playing</label><input id="e-nowplaying" type="text" placeholder="Artist — Song name"></div>
     <div class="field">
       <label>change password (leave blank to keep)</label>
       <input id="e-pass" type="password" placeholder="new password">
