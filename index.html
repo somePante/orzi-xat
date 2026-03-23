@@ -600,6 +600,15 @@ body.light{--bg:#f5f5f5;--s0:#ededed;--s1:#e6e6e6;--s2:#dadada;--s3:#cecece;--s4
 .rcd-dimmer{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:299;display:none}
 .rcd-dimmer.active{display:block}
 
+
+/* ── FLOATING NOTIF ── */
+.float-notif{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--s1);border:1px solid var(--border2);border-radius:16px;padding:10px 16px;display:flex;align-items:center;gap:10px;z-index:10000;box-shadow:0 8px 32px rgba(0,0,0,.5);transition:transform .4s cubic-bezier(.22,1,.36,1);max-width:calc(100vw - 32px);cursor:pointer;backdrop-filter:blur(12px)}
+.float-notif.show{transform:translateX(-50%) translateY(0)}
+.float-notif-icon{font-size:20px;flex-shrink:0}
+.float-notif-body{flex:1;min-width:0}
+.float-notif-title{font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.float-notif-text{font-family:var(--fmono);font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+
 /* ── GRAIN ── */
 body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:10001;opacity:.5}
 </style>
@@ -897,6 +906,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
         <button onclick="showView('profile',currentUser?.id)">view profile</button>
         <button onclick="openEdit()">edit profile</button>
         <button class="danger" onclick="if(confirm('Sign out?'))logout()">sign out</button>
+        <button class="danger" onclick="deleteAccount()" style="border-color:var(--danger)">delete account</button>
       </div>
     </div>
   </div>
@@ -1201,6 +1211,7 @@ function bootApp() {
     {id:'mn-notifs', view:'notifs',  badge:'mn-notif-badge',svg:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>'},
     {id:'mn-dms',    view:'dms',     badge:'mn-dm-badge2',  svg:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22,2 15,22 11,13 2,9" fill="currentColor" stroke="none"/></svg>'},
     {id:'mn-profile',view:'profile', badge:null,            svg:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'},
+    {id:'mn-settings',view:'settings', badge:null,           svg:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>'},
   ];
   var links = document.createElement('div');
   links.style.cssText = 'display:flex;justify-content:space-around;align-items:center;width:100%';
@@ -1243,6 +1254,24 @@ function setNavAvatar() {
     navEl.textContent = initial;
     if (composeEl) composeEl.textContent = initial;
   }
+}
+
+async function deleteAccount(){
+  const confirm1=confirm('Delete your account? This cannot be undone.');
+  if(!confirm1) return;
+  const confirm2=prompt('Type your username to confirm:','');
+  if(confirm2!==currentUser.username){setStatus('username did not match','err');return;}
+  setStatus('deleting account...','');
+  // Delete posts, messages, follows, likes, notifications, then profile
+  await sb.from('posts').delete().eq('author_id',currentUser.id);
+  await sb.from('messages').delete().eq('sender_id',currentUser.id);
+  await sb.from('follows').delete().eq('follower_id',currentUser.id);
+  await sb.from('follows').delete().eq('following_id',currentUser.id);
+  await sb.from('likes').delete().eq('user_id',currentUser.id);
+  await sb.from('notifications').delete().eq('user_id',currentUser.id);
+  await sb.from('profiles').delete().eq('id',currentUser.id);
+  localStorage.clear();
+  location.reload();
 }
 
 function logout() {
@@ -1691,7 +1720,10 @@ async function toggleFollow(userId, isFollowing) {
     }
     createNotif(userId, 'follow', `@${currentUser.username} started following you`, null);
   }
-  loadFeed();
+  // Reload profile if we're viewing one, otherwise reload feed
+  const profView=document.getElementById('view-profile');
+  if(profView&&!profView.classList.contains('hidden')) loadProfile(userId);
+  else loadFeed();
 }
 
 // ── EXPLORE / SEARCH ──────────────────────────────────────────
@@ -1758,9 +1790,12 @@ async function loadProfile(userId,tab='posts'){
 
 
   c.innerHTML=`
-    ${p.banner_url
-      ?`<img src="${esc(p.banner_url)}" class="profile-banner" ${isOwn?'ondragover="event.preventDefault()" ondrop="handleProfileImgDrop(event,\'banner\')"':''}>`
-      :`<div class="profile-banner-empty" ${isOwn?'ondragover="event.preventDefault()" ondrop="handleProfileImgDrop(event,\'banner\')"':''}></div>`}
+    <div style="position:relative">
+      ${p.banner_url
+        ?`<img src="${esc(p.banner_url)}" class="profile-banner" ${isOwn?'ondragover="event.preventDefault()" ondrop="handleProfileImgDrop(event,\'banner\')"':''}>`
+        :`<div class="profile-banner-empty" ${isOwn?'ondragover="event.preventDefault()" ondrop="handleProfileImgDrop(event,\'banner\')"':''}></div>`}
+      ${isOwn?`<div onclick="document.getElementById('banner-file-inp').click()" ondragover="event.preventDefault();this.style.background='rgba(0,212,255,.15)'" ondragleave="this.style.background='rgba(0,0,0,.35)'" ondrop="event.preventDefault();handleProfileImgDrop(event,'banner')" style="position:absolute;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:22px;opacity:0;transition:opacity .2s;border-radius:inherit" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0'">🖼️</div><input type='file' id='banner-file-inp' accept='image/*' style='display:none' onchange='handleBannerFileSelect(this)'>`:``}
+    </div>
     <div class="profile-avatar-wrap">
       <div style="position:relative;display:inline-block">
         ${av}
@@ -1819,6 +1854,11 @@ async function loadFollowList(userId,type){
 }
 
 // ── DRAG TO PROFILE ──────────────────────────────────────────
+async function handleBannerFileSelect(input) {
+  const file = input.files[0]; if (!file) return;
+  input.value = '';
+  await uploadProfileImg(file, 'banner');
+}
 async function handleProfileFileSelect(input) {
   const file = input.files[0]; if (!file) return;
   input.value = '';
@@ -2059,18 +2099,32 @@ async function sendDM(targetId,isGroup){
   const inp=document.getElementById('dm-inp'); if(!inp) return;
   const content=inp.value.trim(); if(!content) return;
   inp.value='';
-  const msgObj={sender_id:currentUser.id,content,seen:false};
   const replyContent = dmReplyTo?.content || null;
   if(dmReplyTo) clearDMReply();
+
+  // Optimistic UI — show message immediately
+  const box=document.getElementById('dm-msgs');
+  if(box){
+    const tempId='temp-'+Date.now();
+    const replyBar=replyContent?`<div class="dm-reply-preview">↩ ${replyContent.slice(0,60)}</div>`:'';
+    const tempEl=document.createElement('div');
+    tempEl.className='dm-msg-row out';
+    tempEl.id=tempId;
+    tempEl.innerHTML=`<div class="dm-msg-wrap"><div class="dm-msg" style="opacity:.7">${replyBar}${content}<div class="dm-msg-time">now</div></div></div>`;
+    box.appendChild(tempEl);
+    box.scrollTop=box.scrollHeight;
+  }
+
+  const msgObj={sender_id:currentUser.id,content,seen:false};
   if(isGroup){ msgObj.group_id=targetId; msgObj.is_group=true; }
   else { msgObj.receiver_id=targetId; msgObj.is_group=false; msgObj.group_id=null; }
-  // Try with reply_to_content first, fall back without if column missing
   if(replyContent) msgObj.reply_to_content=replyContent;
   const{error:sendErr}=await sb.from('messages').insert(msgObj);
   if(sendErr && replyContent){
     delete msgObj.reply_to_content;
     await sb.from('messages').insert(msgObj);
   }
+  // Replace optimistic msg with real one
   renderMessages(targetId,isGroup);
 }
 
@@ -2674,6 +2728,22 @@ function updatePushBtn(){
   else if(perm==='denied'){btn.textContent='how to fix ↗';btn.onclick=()=>requestPushPermission();}
   else{btn.textContent='enable';}
 }
+let _floatQueue=[], _floatShowing=false;
+function showFloatingNotif(icon,title,text,onClick){
+  if(_floatShowing){ _floatQueue.push({icon,title,text,onClick}); return; }
+  _floatShowing=true;
+  const el=document.createElement('div');
+  el.className='float-notif';
+  el.innerHTML=`<div class="float-notif-icon">${icon}</div><div class="float-notif-body"><div class="float-notif-title">${title}</div><div class="float-notif-text">${text}</div></div>`;
+  el.onclick=()=>{ el.style.transform='translateX(-50%) translateY(-80px)'; setTimeout(()=>el.remove(),400); if(onClick) onClick(); };
+  document.body.appendChild(el);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('show')));
+  setTimeout(()=>{
+    el.style.transform='translateX(-50%) translateY(-80px)';
+    setTimeout(()=>{ el.remove(); _floatShowing=false; if(_floatQueue.length){ const n=_floatQueue.shift(); showFloatingNotif(n.icon,n.title,n.text,n.onClick); }},400);
+  },3500);
+}
+
 function sendLocalNotif(title,body){
   if(isDND()) return;
   if(Notification.permission==='granted'&&document.hidden){
@@ -2912,7 +2982,12 @@ function initRealtime(){
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'notifications',filter:`user_id=eq.${currentUser.id}`},
       payload=>{
         checkNotifs();
-        if(!isDND()) sendLocalNotif('ORZI XAT',payload.new.text||'New notification');
+        if(!isDND()){
+          const icons={like:'♥',reply:'💬',follow:'👤',repost:'↻',mention:'@',announcement:'📢',loyal:'👑'};
+          const icon=icons[payload.new.type]||'🔔';
+          showFloatingNotif(icon,'ORZI XAT',payload.new.text||'New notification',()=>showView('notifs'));
+          sendLocalNotif('ORZI XAT',payload.new.text||'New notification');
+        }
       })
     .subscribe(status=>{
       const dot=document.getElementById('rt-dot');
@@ -2921,9 +2996,16 @@ function initRealtime(){
   // DMs channel
   sb.channel('dms_'+currentUser.id)
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:`receiver_id=eq.${currentUser.id}`},
-      payload=>{
+      async payload=>{
         checkDMsWithSound();
         if(activeDmId===payload.new.sender_id) renderMessages(activeDmId,activeDmGroup);
+        else {
+          // Show floating notif for new DM
+          const{data:sender}=await sb.from('profiles').select('display_name').eq('id',payload.new.sender_id).single();
+          const name=sender?.display_name||'Someone';
+          const text=payload.new.content||'📷 image';
+          showFloatingNotif('💬',name,text,()=>startDM(payload.new.sender_id));
+        }
       })
     .subscribe();
 }
