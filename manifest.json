@@ -2,21 +2,21 @@
   "name": "ORZI XAT",
   "short_name": "ORZI",
   "description": "A small social media platform by SAAD.",
-  "start_url": "/orzi-xat/",
-  "scope": "/orzi-xat/",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
   "background_color": "#080808",
   "theme_color": "#0a0a0a",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "./icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "icon-512.png",
+      "src": "./icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
